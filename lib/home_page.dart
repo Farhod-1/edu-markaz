@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'login_page.dart';
 import 'models/user.dart';
 import 'profile_page.dart';
+import 'screens/student_list_screen.dart';
+import 'screens/user_list_screen.dart';
 import 'services/auth_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -23,6 +25,8 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _screens.addAll([
       const _DashboardScreen(),
+      const StudentListScreen(),
+      const UserListScreen(), // Add UserListScreen
       const ProfilePage(),
       const _SettingsScreen(),
     ]);
@@ -33,8 +37,12 @@ class _HomePageState extends State<HomePage> {
       case 0:
         return 'Home';
       case 1:
-        return 'Profile';
+        return 'Students';
       case 2:
+        return 'Users'; // Add Users title
+      case 3:
+        return 'Profile';
+      case 4:
         return 'Settings';
       default:
         return 'Edu Markaz';
@@ -63,6 +71,16 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
             label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.people_outline),
+            selectedIcon: Icon(Icons.people),
+            label: 'Students',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.group_outlined), // Add Users icon
+            selectedIcon: Icon(Icons.group),
+            label: 'Users',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),
