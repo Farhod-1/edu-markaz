@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/parent.dart';
 import '../services/user_service.dart';
+import '../widgets/create_parent_dialog.dart';
 
 class ParentsPage extends StatefulWidget {
   const ParentsPage({super.key});
@@ -51,11 +52,18 @@ class _ParentsPageState extends State<ParentsPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {
-              // TODO: Implement create parent
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Create Parent feature coming soon')),
+            onPressed: () async {
+              final result = await showDialog<bool>(
+                context: context,
+                builder: (context) => const CreateParentDialog(),
               );
+              
+              if (result == true) {
+                _loadParents();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Parent created successfully')),
+                );
+              }
             },
           ),
         ],
@@ -126,11 +134,18 @@ class _ParentsPageState extends State<ParentsPage> {
                                 ),
                                 const SizedBox(height: 24),
                                 ElevatedButton.icon(
-                                  onPressed: () {
-                                    // TODO: Implement create parent
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Create Parent feature coming soon')),
+                                  onPressed: () async {
+                                    final result = await showDialog<bool>(
+                                      context: context,
+                                      builder: (context) => const CreateParentDialog(),
                                     );
+                                    
+                                    if (result == true) {
+                                      _loadParents();
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Parent created successfully')),
+                                      );
+                                    }
                                   },
                                   icon: const Icon(Icons.add),
                                   label: const Text('Create Parent'),

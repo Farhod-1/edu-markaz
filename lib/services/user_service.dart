@@ -54,4 +54,44 @@ class UserService {
       return [];
     }
   }
+
+  Future<bool> createTeacher(Map<String, dynamic> teacherData) async {
+    final headers = await _authService.getAuthHeaders();
+    final uri = Uri.parse('${AppConstants.baseUrl}/users');
+
+    try {
+      teacherData['role'] = 'teacher';
+      
+      final response = await http.post(
+        uri, 
+        headers: headers,
+        body: jsonEncode(teacherData),
+      );
+
+      return response.statusCode >= 200 && response.statusCode < 300;
+    } catch (e) {
+      print('Error creating teacher: $e');
+      return false;
+    }
+  }
+
+  Future<bool> createParent(Map<String, dynamic> parentData) async {
+    final headers = await _authService.getAuthHeaders();
+    final uri = Uri.parse('${AppConstants.baseUrl}/users');
+
+    try {
+      parentData['role'] = 'parent';
+      
+      final response = await http.post(
+        uri, 
+        headers: headers,
+        body: jsonEncode(parentData),
+      );
+
+      return response.statusCode >= 200 && response.statusCode < 300;
+    } catch (e) {
+      print('Error creating parent: $e');
+      return false;
+    }
+  }
 }

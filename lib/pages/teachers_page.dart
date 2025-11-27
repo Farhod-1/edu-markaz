@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/teacher.dart';
 import '../services/user_service.dart';
+import '../widgets/create_teacher_dialog.dart';
 
 class TeachersPage extends StatefulWidget {
   const TeachersPage({super.key});
@@ -51,11 +52,18 @@ class _TeachersPageState extends State<TeachersPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {
-              // TODO: Implement create teacher
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Create Teacher feature coming soon')),
+            onPressed: () async {
+              final result = await showDialog<bool>(
+                context: context,
+                builder: (context) => const CreateTeacherDialog(),
               );
+              
+              if (result == true) {
+                _loadTeachers();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Teacher created successfully')),
+                );
+              }
             },
           ),
         ],
@@ -131,11 +139,18 @@ class _TeachersPageState extends State<TeachersPage> {
                                 ),
                                 const SizedBox(height: 24),
                                 ElevatedButton.icon(
-                                  onPressed: () {
-                                    // TODO: Implement create teacher
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Create Teacher feature coming soon')),
+                                  onPressed: () async {
+                                    final result = await showDialog<bool>(
+                                      context: context,
+                                      builder: (context) => const CreateTeacherDialog(),
                                     );
+                                    
+                                    if (result == true) {
+                                      _loadTeachers();
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Teacher created successfully')),
+                                      );
+                                    }
                                   },
                                   icon: const Icon(Icons.add),
                                   label: const Text('Add Your First Teacher'),
