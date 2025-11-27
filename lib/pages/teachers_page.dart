@@ -64,18 +64,37 @@ class _TeachersPageState extends State<TeachersPage> {
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search teachers...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search teachers...',
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    ),
+                    onChanged: (value) {
+                      // TODO: Implement local search or API search
+                    },
+                  ),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-              ),
-              onChanged: (value) {
-                // TODO: Implement local search or API search
-              },
+                const SizedBox(width: 16),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.filter_list),
+                    onPressed: () {
+                      // TODO: Implement filter
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -109,6 +128,22 @@ class _TeachersPageState extends State<TeachersPage> {
                                 const Text(
                                   'Get started by adding your first teacher.',
                                   style: TextStyle(color: Colors.grey),
+                                ),
+                                const SizedBox(height: 24),
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    // TODO: Implement create teacher
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Create Teacher feature coming soon')),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.add),
+                                  label: const Text('Add Your First Teacher'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.black,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                  ),
                                 ),
                               ],
                             ),
