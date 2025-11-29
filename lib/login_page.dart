@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'home_page.dart';
 import 'models/user.dart';
 import 'services/auth_service.dart';
+import 'utils/constants.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -39,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
       _message = null;
     });
 
-    final uri = Uri.parse('https://edu-markaz.uz/api/auth/login');
+    final uri = Uri.parse('${AppConstants.baseUrl}/auth/login');
 
     try {
       final response = await http.post(
