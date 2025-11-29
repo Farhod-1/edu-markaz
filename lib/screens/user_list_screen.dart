@@ -121,16 +121,16 @@ class _UserListScreenState extends State<UserListScreen> {
       appBar: AppBar(
         title: const Text('Users'),
         actions: [
-          PopupMenuButton<String>(
+          PopupMenuButton<String?>(
             icon: const Icon(Icons.filter_list),
             onSelected: _onRoleChanged,
             itemBuilder: (context) {
               return [
-                const PopupMenuItem(
+                const PopupMenuItem<String?>(
                   value: null,
                   child: Text('All'),
                 ),
-                ..._roles.map((role) => PopupMenuItem(
+                ..._roles.map((role) => PopupMenuItem<String?>(
                       value: role,
                       child: Text(role),
                     )),
@@ -163,7 +163,7 @@ class _UserListScreenState extends State<UserListScreen> {
                       child: const Text('Retry'),
                     ),
                   ],
-                ],
+                ),
               )
             : Column(
                 children: [

@@ -123,6 +123,10 @@ class UserService {
     }
   }
 
+  Future<List<User>> getStudents({int page = 1, int limit = 50}) async {
+    return getUsers(page: page, limit: limit, role: 'STUDENT');
+  }
+
   Future<bool> createUser(Map<String, dynamic> userData) async {
     final headers = await _authService.getAuthHeaders();
     final uri = Uri.parse('${AppConstants.baseUrl}/users');

@@ -118,14 +118,13 @@ class _CreateLessonGroupModalState extends State<CreateLessonGroupModal> {
         'studentIds': _selectedStudentIds,
       };
 
-      bool success;
       if (widget.groupToEdit != null) {
-        success = await _lessonGroupService.updateLessonGroup(widget.groupToEdit!.id, groupData);
+        await _lessonGroupService.updateLessonGroup(widget.groupToEdit!.id, groupData);
       } else {
-        success = await _lessonGroupService.createLessonGroup(groupData);
+        await _lessonGroupService.createLessonGroup(groupData);
       }
 
-      if (success && mounted) {
+      if (mounted) {
         Navigator.pop(context, true);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -133,10 +132,6 @@ class _CreateLessonGroupModalState extends State<CreateLessonGroupModal> {
             backgroundColor: Colors.green,
           ),
         );
-      } else {
-        setState(() {
-          _error = 'Failed to ${widget.groupToEdit != null ? "update" : "create"} group';
-        });
       }
     } catch (e) {
       setState(() {

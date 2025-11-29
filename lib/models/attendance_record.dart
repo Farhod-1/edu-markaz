@@ -20,7 +20,6 @@ class AttendanceRecord {
   factory AttendanceRecord.fromJson(Map<String, dynamic> json) {
     final lessonGroup = json['lessonGroupId'];
     final lgName = lessonGroup is Map ? (lessonGroup['name'] ?? '') : '';
-    final records = json['records'] as List<dynamic>? ?? [];
     // if API returns one attendance object per date with many "records", we map record entries separately at service layer
     return AttendanceRecord(
       id: (json['_id'] ?? '').toString(),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/lesson_group.dart';
-import '../services/lesson_group_service.dart';
 import 'create_edit_lesson_group_page.dart';
 import 'lesson_group_management_page.dart';
 
@@ -72,7 +71,10 @@ class LessonGroupDetailPage extends StatelessWidget {
                           width: 60,
                           height: 60,
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(
@@ -113,9 +115,9 @@ class LessonGroupDetailPage extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Description
             if (group.description != null) ...[
               Card(
@@ -130,7 +132,8 @@ class LessonGroupDetailPage extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.description, size: 20, color: Colors.grey[700]),
+                          Icon(Icons.description,
+                              size: 20, color: Colors.grey[700]),
                           const SizedBox(width: 8),
                           Text(
                             'Description',
@@ -156,7 +159,7 @@ class LessonGroupDetailPage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
             ],
-            
+
             // Schedule
             if (group.schedule != null) ...[
               _buildInfoCard(
@@ -167,7 +170,7 @@ class LessonGroupDetailPage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
             ],
-            
+
             // Students Info
             if (group.maxStudents != null || group.currentStudents != null)
               _buildInfoCard(
@@ -178,7 +181,7 @@ class LessonGroupDetailPage extends StatelessWidget {
                     ? 'Full (${group.currentStudents}/${group.maxStudents})'
                     : '${group.currentStudents ?? 0}/${group.maxStudents ?? '?'} students enrolled',
               ),
-            
+
             // Dates
             if (group.startDate != null || group.endDate != null) ...[
               const SizedBox(height: 16),
@@ -204,7 +207,7 @@ class LessonGroupDetailPage extends StatelessWidget {
   Widget _buildStatusChip(BuildContext context) {
     Color statusColor;
     IconData statusIcon;
-    
+
     switch (group.status.toLowerCase()) {
       case 'active':
         statusColor = Colors.green;
@@ -247,7 +250,8 @@ class LessonGroupDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoCard(BuildContext context, IconData icon, String title, String value) {
+  Widget _buildInfoCard(
+      BuildContext context, IconData icon, String title, String value) {
     return Card(
       elevation: 1,
       shape: RoundedRectangleBorder(
@@ -292,4 +296,3 @@ class LessonGroupDetailPage extends StatelessWidget {
     return '${date.day}/${date.month}/${date.year}';
   }
 }
-

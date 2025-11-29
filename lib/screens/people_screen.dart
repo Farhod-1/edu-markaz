@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/student.dart';
 import '../models/user.dart';
-import '../services/student_service.dart';
 import '../services/user_service.dart';
 import '../widgets/create_user_modal.dart';
-import 'student_detail_screen.dart';
 import 'user_detail_screen.dart';
 
 class PeopleScreen extends StatefulWidget {

@@ -129,39 +129,35 @@ class _CreateEditLessonGroupPageState extends State<CreateEditLessonGroupPage> {
     try {
       if (widget.group == null) {
         // Create new
-        await _lessonGroupService.createLessonGroup(
-          name: _nameController.text.trim(),
-          courseId: _selectedCourse!.id,
-          description: _descriptionController.text.trim().isEmpty
-              ? null
-              : _descriptionController.text.trim(),
-          maxStudents: _maxStudentsController.text.trim().isEmpty
-              ? null
-              : int.tryParse(_maxStudentsController.text.trim()),
-          startDate: _startDate,
-          endDate: _endDate,
-          schedule: _scheduleController.text.trim().isEmpty
-              ? null
-              : _scheduleController.text.trim(),
-        );
+        await _lessonGroupService.createLessonGroup({
+          'name': _nameController.text.trim(),
+          'courseId': _selectedCourse!.id,
+          if (_descriptionController.text.trim().isNotEmpty)
+            'description': _descriptionController.text.trim(),
+          if (_maxStudentsController.text.trim().isNotEmpty)
+            'maxStudents': int.tryParse(_maxStudentsController.text.trim()),
+          if (_startDate != null) 'startDate': _startDate!.toIso8601String(),
+          if (_endDate != null) 'endDate': _endDate!.toIso8601String(),
+          if (_scheduleController.text.trim().isNotEmpty)
+            'schedule': _scheduleController.text.trim(),
+        });
       } else {
         // Update existing
         await _lessonGroupService.updateLessonGroup(
-          groupId: widget.group!.id,
-          name: _nameController.text.trim(),
-          courseId: _selectedCourse!.id,
-          description: _descriptionController.text.trim().isEmpty
-              ? null
-              : _descriptionController.text.trim(),
-          maxStudents: _maxStudentsController.text.trim().isEmpty
-              ? null
-              : int.tryParse(_maxStudentsController.text.trim()),
-          startDate: _startDate,
-          endDate: _endDate,
-          schedule: _scheduleController.text.trim().isEmpty
-              ? null
-              : _scheduleController.text.trim(),
-          status: _selectedStatus,
+          widget.group!.id,
+          {
+            'name': _nameController.text.trim(),
+            'courseId': _selectedCourse!.id,
+            if (_descriptionController.text.trim().isNotEmpty)
+              'description': _descriptionController.text.trim(),
+            if (_maxStudentsController.text.trim().isNotEmpty)
+              'maxStudents': int.tryParse(_maxStudentsController.text.trim()),
+            if (_startDate != null) 'startDate': _startDate!.toIso8601String(),
+            if (_endDate != null) 'endDate': _endDate!.toIso8601String(),
+            if (_scheduleController.text.trim().isNotEmpty)
+              'schedule': _scheduleController.text.trim(),
+            'status': _selectedStatus,
+          },
         );
       }
 

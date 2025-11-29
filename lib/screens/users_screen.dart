@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/user_service.dart';
-import '../models/student.dart';
-import 'student_detail_screen.dart';
+import '../models/user.dart';
+import 'user_detail_screen.dart';
 
 class UsersScreen extends StatefulWidget {
   const UsersScreen({super.key});
@@ -13,7 +13,7 @@ class UsersScreen extends StatefulWidget {
 class _UsersScreenState extends State<UsersScreen> {
   final UserService _userService = UserService();
   bool _loading = true;
-  List<Student> _students = [];
+  List<User> _students = [];
   String _error = '';
 
   @override
@@ -55,7 +55,7 @@ class _UsersScreenState extends State<UsersScreen> {
               trailing: Text(s.role),
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => StudentDetailScreen(studentId: s.id, studentName: s.name),
+                  builder: (_) => UserDetailScreen(user: s),
                 ));
               },
             );

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/lesson_group.dart';
-import '../models/attendance_record.dart';
 import '../models/student.dart';
 import 'auth_service.dart';
 

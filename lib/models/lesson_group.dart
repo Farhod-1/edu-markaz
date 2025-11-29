@@ -4,9 +4,14 @@ class LessonGroup {
   final String? description;
   final String? courseId;
   final String? courseName;
+  final String? teacherId;
+  final String? teacherName;
+  final String? teacherPhone;
   final List<String> days;
+  final String? organizationId;
   final String? organizationName;
   final List<Map<String, dynamic>> studentIds;
+  final String? roomId;
   final int? maxStudents;
   final int? currentStudents;
   final String status;
@@ -22,9 +27,14 @@ class LessonGroup {
     this.description,
     this.courseId,
     this.courseName,
+    this.teacherId,
+    this.teacherName,
+    this.teacherPhone,
     this.days = const [],
+    this.organizationId,
     this.organizationName,
     this.studentIds = const [],
+    this.roomId,
     this.maxStudents,
     this.currentStudents,
     required this.status,
@@ -43,13 +53,60 @@ class LessonGroup {
       return null;
     }
 
-    // Parse organization name
-    final org = json['organizationId'];
-    final orgName = org is Map ? (org['name'] ?? '') : (org ?? '');
+    // Parse teacherId - can be String or populated Object
+    String? teacherIdValue;
+    String? teacherNameValue;
+    String? teacherPhoneValue;
+    final teacher = json['teacherId'];
+    if (teacher is Map<String, dynamic>) {
+      teacherIdValue = (teacher['_id'] ?? teacher['id'] ?? '').toString();
+      teacherNameValue = (teacher['name'] ?? '').toString();
+      teacherPhoneValue = (teacher['phoneNumber'] ?? teacher['phone'] ?? '').toString();
+    } else if (teacher is String) {
+      teacherIdValue = teacher;
+    }
 
-    // Parse students
+    // Parse courseId - can be String or populated Object
+    String? courseIdValue;
+    String? courseNameValue;
+    final course = json['courseId'];
+    if (course is Map<String, dynamic>) {
+      courseIdValue = (course['_id'] ?? course['id'] ?? '').toString();
+      courseNameValue = (course['name'] ?? '').toString();
+    } else if (course is String) {
+      courseIdValue = course;
+    }
+
+    // Parse organizationId - can be String or populated Object
+    String? orgIdValue;
+    String? orgNameValue;
+    final org = json['organizationId'];
+    if (org is Map<String, dynamic>) {
+      orgIdValue = (org['_id'] ?? org['id'] ?? '').toString();
+      orgNameValue = (org['name'] ?? '').toString();
+    } else if (org is String) {
+      orgIdValue = org;
+    }
+
+    // Parse roomId - can be String or populated Object
+    String? roomIdValue;
+    final room = json['roomId'];
+    if (room is Map<String, dynamic>) {
+      roomIdValue = (room['_id'] ?? room['id'] ?? '').toString();
+    } else if (room is String) {
+      roomIdValue = room;
+    }
+
+    // Parse studentIds - can be array of Strings or populated Objects
     final rawStudents = json['studentIds'] as List<dynamic>? ?? [];
-    final students = rawStudents.map((e) => Map<String, dynamic>.from(e)).toList();
+    final students = rawStudents.map((student) {
+      if (student is Map<String, dynamic>) {
+        return Map<String, dynamic>.from(student);
+      } else if (student is String) {
+        return {'_id': student};
+      }
+      return <String, dynamic>{};
+    }).toList();
 
     // Parse days
     final daysList = (json['days'] as List<dynamic>?)
@@ -61,13 +118,18 @@ class LessonGroup {
       id: (json['_id'] ?? json['id'] ?? '').toString(),
       name: (json['name'] ?? '').toString(),
       description: json['description'] as String?,
-      courseId: json['courseId'] as String? ?? json['course_id'] as String?,
-      courseName: json['courseName'] as String?,
+      courseId: courseIdValue,
+      courseName: courseNameValue ?? json['courseName'] as String?,
+      teacherId: teacherIdValue,
+      teacherName: teacherNameValue,
+      teacherPhone: teacherPhoneValue,
       days: daysList,
-      organizationName: orgName.toString(),
+      organizationId: orgIdValue,
+      organizationName: orgNameValue ?? json['organizationName'] as String?,
       studentIds: students,
+      roomId: roomIdValue,
       maxStudents: json['maxStudents'] as int? ?? json['max_students'] as int?,
-      currentStudents: json['currentStudents'] as int? ?? json['current_students'] as int?,
+      currentStudents: json['currentStudents'] as int? ?? json['current_students'] as int? ?? students.length,
       status: json['status'] as String? ?? 'active',
       startDate: parseDate(json['startDate'] ?? json['start_date']),
       endDate: parseDate(json['endDate'] ?? json['end_date']),
@@ -81,22 +143,34 @@ class LessonGroup {
     return {
       '_id': id,
       'name': name,
-      'description': description,
-      'courseId': courseId,
-      'courseName': courseName,
+      if (description != null) 'description': description,
+      if (courseId != null) 'courseId': courseId,
+      if (courseName != null) 'courseName': courseName,
+      if (teacherId != null) 'teacherId': teacherId,
+      if (teacherName != null) 'teacherName': teacherName,
+      if (teacherPhone != null) 'teacherPhone': teacherPhone,
       'days': days,
-      'organizationName': organizationName,
+      if (organizationId != null) 'organizationId': organizationId,
+      if (organizationName != null) 'organizationName': organizationName,
       'studentIds': studentIds,
-      'maxStudents': maxStudents,
-      'currentStudents': currentStudents,
+      if (roomId != null) 'roomId': roomId,
+      if (maxStudents != null) 'maxStudents': maxStudents,
+      if (currentStudents != null) 'currentStudents': currentStudents,
       'status': status,
-      'startDate': startDate?.toIso8601String(),
-      'endDate': endDate?.toIso8601String(),
-      'schedule': schedule,
+      if (startDate != null) 'startDate': startDate?.toIso8601String(),
+      if (endDate != null) 'endDate': endDate?.toIso8601String(),
+      if (schedule != null) 'schedule': schedule,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
   }
+
+  // Helper getters for UI display
+  int get studentCount => studentIds.length;
+  
+  String get daysDisplay => days.isEmpty ? 'No days set' : days.join(', ');
+  
+  bool get hasTeacher => teacherId != null && teacherId!.isNotEmpty;
 
   bool get isFull {
     if (maxStudents == null || currentStudents == null) return false;

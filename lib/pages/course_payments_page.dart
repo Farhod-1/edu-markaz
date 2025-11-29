@@ -256,7 +256,7 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
 
     try {
       // Format month as "YYYY-MM" string (e.g., "2024-03")
-      final monthString = '${selectedMonth!.year}-${selectedMonth!.month.toString().padLeft(2, '0')}';
+      final monthString = '${selectedMonth.year}-${selectedMonth.month.toString().padLeft(2, '0')}';
       
       // Verify lesson group exists in backend before using it
       String? verifiedLessonGroupId = selectedLessonGroupId;
