@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'login_page.dart';
 import 'models/user.dart';
-import 'pages/parents_page.dart';
-import 'pages/teachers_page.dart';
 import 'profile_page.dart';
-import 'screens/student_list_screen.dart';
-import 'screens/user_list_screen.dart';
+import 'screens/people_screen.dart';
 import 'services/auth_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -27,117 +24,14 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _screens.addAll([
       const _DashboardScreen(),
-      const StudentListScreen(),
-      const UserListScreen(), // Add UserListScreen
+      const PeopleScreen(),
       const ProfilePage(),
-      const _SettingsScreen(),
     ]);
-  }
-
-  String _getAppBarTitle() {
-    switch (_currentIndex) {
-      case 0:
-        return 'Home';
-      case 1:
-        return 'Students';
-      case 2:
-        return 'Users'; // Add Users title
-      case 3:
-        return 'Profile';
-      case 4:
-        return 'Settings';
-      default:
-        return 'Edu Markaz';
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_getAppBarTitle()),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Icon(Icons.school, size: 48, color: Colors.white),
-                  SizedBox(height: 16),
-                  Text(
-                    'Edu Markaz',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.dashboard),
-              title: const Text('Dashboard'),
-              onTap: () {
-                Navigator.pop(context);
-                setState(() {
-                  _currentIndex = 0;
-                });
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.people),
-              title: const Text('Teachers'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const TeachersPage()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.family_restroom),
-              title: const Text('Parents'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ParentsPage()),
-                );
-              },
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('Profile'),
-              onTap: () {
-                Navigator.pop(context);
-                setState(() {
-                  _currentIndex = 1;
-                });
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
-              onTap: () {
-                Navigator.pop(context);
-                setState(() {
-                  _currentIndex = 2;
-                });
-              },
-            ),
-          ],
-        ),
-      ),
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,
@@ -149,6 +43,7 @@ class _HomePageState extends State<HomePage> {
             _currentIndex = index;
           });
         },
+        elevation: 8,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
@@ -158,22 +53,12 @@ class _HomePageState extends State<HomePage> {
           NavigationDestination(
             icon: Icon(Icons.people_outline),
             selectedIcon: Icon(Icons.people),
-            label: 'Students',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.group_outlined), // Add Users icon
-            selectedIcon: Icon(Icons.group),
-            label: 'Users',
+            label: 'People',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),
             label: 'Profile',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings),
-            label: 'Settings',
           ),
         ],
       ),
@@ -188,95 +73,265 @@ class _DashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final authService = AuthService();
 
-    return FutureBuilder<User?>(
-      future: authService.getUser(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Dashboard'),
+        automaticallyImplyLeading: false,
+      ),
+      body: FutureBuilder<User?>(
+        future: authService.getUser(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        final user = snapshot.data;
+          final user = snapshot.data;
 
-        return Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.school,
-                  size: 80,
-                  color: Colors.blue,
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Welcome to Edu Markaz!',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                if (user != null) ...[
-                  Text(
-                    'Hello, ${user.phoneNumber}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Chip(
-                    label: Text(
-                      user.role.replaceAll('_', ' '),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+          return RefreshIndicator(
+            onRefresh: () async {
+              // Refresh user data
+              await Future.delayed(const Duration(seconds: 1));
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Welcome Card
+                  Card(
+                    elevation: 0,
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Icon(
+                              Icons.school,
+                              size: 40,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Welcome Back!',
+                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
+                                const SizedBox(height: 4),
+                                if (user != null)
+                                  Text(
+                                    user.name.isNotEmpty ? user.name : user.phoneNumber,
+                                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                          color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8),
+                                        ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    backgroundColor: Colors.blue,
                   ),
-                ],
-                const SizedBox(height: 32),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        const Icon(
-                          Icons.dashboard,
-                          size: 48,
-                          color: Colors.blue,
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Dashboard',
-                          style: TextStyle(
-                            fontSize: 20,
+                  const SizedBox(height: 24),
+
+                  // User Info Card
+                  if (user != null) ...[
+                    Text(
+                      'Account Information',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          user != null
-                              ? 'You are logged in as ${user.role.replaceAll('_', ' ')}'
-                              : 'You have successfully logged in.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
                     ),
+                    const SizedBox(height: 12),
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            _buildInfoRow(
+                              context,
+                              icon: Icons.phone,
+                              label: 'Phone',
+                              value: user.phoneNumber,
+                            ),
+                            const Divider(height: 24),
+                            _buildInfoRow(
+                              context,
+                              icon: Icons.badge,
+                              label: 'Role',
+                              value: user.role.replaceAll('_', ' '),
+                              valueColor: _getRoleColor(user.role),
+                            ),
+                            const Divider(height: 24),
+                            _buildInfoRow(
+                              context,
+                              icon: Icons.verified,
+                              label: 'Status',
+                              value: user.status,
+                              valueColor: user.status == 'ACTIVE' ? Colors.green : Colors.grey,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+
+                  // Quick Actions
+                  Text(
+                    'Quick Actions',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 12),
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 1.5,
+                    children: [
+                      _buildQuickActionCard(
+                        context,
+                        icon: Icons.school,
+                        label: 'Students',
+                        color: Colors.blue,
+                        onTap: () {
+                          // Navigate to people screen with students tab
+                        },
+                      ),
+                      _buildQuickActionCard(
+                        context,
+                        icon: Icons.person,
+                        label: 'Teachers',
+                        color: Colors.green,
+                        onTap: () {
+                          // Navigate to people screen with teachers tab
+                        },
+                      ),
+                      _buildQuickActionCard(
+                        context,
+                        icon: Icons.family_restroom,
+                        label: 'Parents',
+                        color: Colors.orange,
+                        onTap: () {
+                          // Navigate to people screen with parents tab
+                        },
+                      ),
+                      _buildQuickActionCard(
+                        context,
+                        icon: Icons.settings,
+                        label: 'Settings',
+                        color: Colors.purple,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const _SettingsScreen()),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
+  }
+
+  static Widget _buildInfoRow(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String value,
+    Color? valueColor,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
+        const SizedBox(width: 12),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Colors.grey.shade600,
+              ),
+        ),
+        const Spacer(),
+        Text(
+          value,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: valueColor,
+              ),
+        ),
+      ],
+    );
+  }
+
+  static Widget _buildQuickActionCard(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      elevation: 2,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 36, color: color),
+              const SizedBox(height: 8),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  static Color _getRoleColor(String role) {
+    switch (role) {
+      case 'STUDENT':
+        return Colors.blue;
+      case 'TEACHER':
+        return Colors.green;
+      case 'PARENT':
+        return Colors.orange;
+      case 'ADMIN':
+        return Colors.purple;
+      case 'OWNER':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
   }
 }
 
@@ -288,6 +343,9 @@ class _SettingsScreen extends StatelessWidget {
     final authService = AuthService();
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Settings'),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -409,4 +467,3 @@ class _SettingsScreen extends StatelessWidget {
     );
   }
 }
-
