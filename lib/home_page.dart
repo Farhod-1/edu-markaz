@@ -4,6 +4,7 @@ import 'login_page.dart';
 import 'models/user.dart';
 import 'profile_page.dart';
 import 'screens/courses_screen.dart';
+import 'screens/lesson_groups_screen.dart';
 import 'screens/people_screen.dart';
 import 'services/auth_service.dart';
 
@@ -365,6 +366,18 @@ class _SettingsScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const CoursesScreen()),
+                      );
+                    },
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.class_outlined),
+                    title: const Text('Lesson Groups'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LessonGroupsScreen()),
                       );
                     },
                   ),
