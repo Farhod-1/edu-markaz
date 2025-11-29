@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'login_page.dart';
 import 'models/user.dart';
+import 'pages/parents_page.dart';
+import 'pages/teachers_page.dart';
 import 'profile_page.dart';
 import 'services/auth_service.dart';
 
@@ -46,6 +48,87 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_getAppBarTitle()),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Icon(Icons.school, size: 48, color: Colors.white),
+                  SizedBox(height: 16),
+                  Text(
+                    'Edu Markaz',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.dashboard),
+              title: const Text('Dashboard'),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() {
+                  _currentIndex = 0;
+                });
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.people),
+              title: const Text('Teachers'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const TeachersPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.family_restroom),
+              title: const Text('Parents'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ParentsPage()),
+                );
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Profile'),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() {
+                  _currentIndex = 1;
+                });
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Settings'),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() {
+                  _currentIndex = 2;
+                });
+              },
+            ),
+          ],
+        ),
       ),
       body: IndexedStack(
         index: _currentIndex,
