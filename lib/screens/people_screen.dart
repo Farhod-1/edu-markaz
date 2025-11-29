@@ -3,7 +3,7 @@ import '../models/student.dart';
 import '../models/user.dart';
 import '../services/student_service.dart';
 import '../services/user_service.dart';
-import 'create_user_screen.dart';
+import '../widgets/create_user_modal.dart';
 import 'student_detail_screen.dart';
 import 'user_detail_screen.dart';
 
@@ -16,6 +16,7 @@ class PeopleScreen extends StatefulWidget {
 
 class _PeopleScreenState extends State<PeopleScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  int _refreshKey = 0;
 
   @override
   void initState() {
@@ -60,11 +61,11 @@ class _PeopleScreenState extends State<PeopleScreen> with SingleTickerProviderSt
       ),
       body: TabBarView(
         controller: _tabController,
-        children: const [
-          _UserListTab(role: 'STUDENT'),
-          _UserListTab(role: 'TEACHER'),
-          _UserListTab(role: 'PARENT'),
-          _UserListTab(role: null),
+        children: [
+          _UserListTab(key: ValueKey('STUDENT_$_refreshKey'), role: 'STUDENT'),
+          _UserListTab(key: ValueKey('TEACHER_$_refreshKey'), role: 'TEACHER'),
+          _UserListTab(key: ValueKey('PARENT_$_refreshKey'), role: 'PARENT'),
+          _UserListTab(key: ValueKey('ALL_$_refreshKey'), role: null),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -93,19 +94,24 @@ class _PeopleScreenState extends State<PeopleScreen> with SingleTickerProviderSt
         fixedRole = null;
     }
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => CreateUserScreen(fixedRole: fixedRole),
-      ),
-    );
+    showDialog(
+      context: context,
+      builder: (context) => CreateUserModal(fixedRole: fixedRole),
+    ).then((success) {
+      if (success == true) {
+        // Force rebuild of tabs to refresh data
+        setState(() {
+          _refreshKey++;
+        });
+      }
+    });
   }
 }
 
 class _UserListTab extends StatefulWidget {
   final String? role;
 
-  const _UserListTab({required this.role});
+  const _UserListTab({super.key, required this.role});
 
   @override
   State<_UserListTab> createState() => _UserListTabState();
@@ -447,11 +453,9 @@ class _UserListTabState extends State<_UserListTab> with AutomaticKeepAliveClien
                 onSelected: (value) async {
                   switch (value) {
                     case 'edit':
-                      final success = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => CreateUserScreen(userToEdit: user),
-                        ),
+                      final success = await showDialog(
+                        context: context,
+                        builder: (context) => CreateUserModal(userToEdit: user.toJson()),
                       );
                       if (success == true) _refresh();
                       break;
