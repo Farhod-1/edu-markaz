@@ -20,7 +20,7 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
   final PaymentService _paymentService = PaymentService();
   final LessonGroupService _lessonGroupService = LessonGroupService();
   final AuthService _authService = AuthService();
-  
+
   List<Course> _courses = [];
   List<Payment> _payments = [];
   bool _isLoading = true;
@@ -51,7 +51,7 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
     try {
       final courses = await _courseService.getCourses();
       final payments = await _paymentService.getUserPayments();
-      
+
       if (mounted) {
         setState(() {
           _courses = courses;
@@ -72,18 +72,19 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
   Future<void> _makePayment(Course course) async {
     // Get student ID from user's children or use user ID
     String? studentId;
-    
+
     if (_currentUser != null) {
       if (_currentUser!.children.isNotEmpty) {
         // Use first child's ID if available
         final firstChild = _currentUser!.children.first;
         if (firstChild is Map<String, dynamic>) {
-          studentId = firstChild['_id'] as String? ?? firstChild['id'] as String?;
+          studentId =
+              firstChild['_id'] as String? ?? firstChild['id'] as String?;
         } else if (firstChild is String) {
           studentId = firstChild;
         }
       }
-      
+
       // If no children, use user ID as fallback
       if (studentId == null || studentId.isEmpty) {
         studentId = _currentUser!.id;
@@ -94,7 +95,8 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Error: Student ID not found. Please contact support.'),
+            content:
+                Text('Error: Student ID not found. Please contact support.'),
             backgroundColor: Colors.red,
           ),
         );
@@ -105,7 +107,8 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
     // Load lesson groups for this course
     List<LessonGroup> lessonGroups = [];
     try {
-      lessonGroups = await _lessonGroupService.getLessonGroups(courseId: course.id);
+      lessonGroups =
+          await _lessonGroupService.getLessonGroups(courseId: course.id);
     } catch (e) {
       // If we can't load groups, continue without them
     }
@@ -128,7 +131,8 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
                   title: Text(group.name),
                   subtitle: Text(group.schedule ?? 'No schedule'),
                   trailing: group.isFull
-                      ? const Chip(label: Text('Full'), backgroundColor: Colors.orange)
+                      ? const Chip(
+                          label: Text('Full'), backgroundColor: Colors.orange)
                       : null,
                   onTap: () => Navigator.of(context).pop(group.id),
                 );
@@ -150,7 +154,7 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
     // Select month for payment (format: YYYY-MM)
     DateTime? selectedMonth;
     final now = DateTime.now();
-    
+
     final monthResult = await showDialog<DateTime>(
       context: context,
       builder: (context) => AlertDialog(
@@ -172,7 +176,8 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
                   ),
                   Text(
                     '${now.year}',
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   IconButton(
                     icon: const Icon(Icons.chevron_right),
@@ -197,8 +202,18 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
                     final month = index + 1;
                     final date = DateTime(now.year, month);
                     final monthNames = [
-                      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+                      'Jan',
+                      'Feb',
+                      'Mar',
+                      'Apr',
+                      'May',
+                      'Jun',
+                      'Jul',
+                      'Aug',
+                      'Sep',
+                      'Oct',
+                      'Nov',
+                      'Dec'
                     ];
                     return InkWell(
                       onTap: () => Navigator.of(context).pop(date),
@@ -256,20 +271,23 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
 
     try {
       // Format month as "YYYY-MM" string (e.g., "2024-03")
-      final monthString = '${selectedMonth.year}-${selectedMonth.month.toString().padLeft(2, '0')}';
-      
+      final monthString =
+          '${selectedMonth.year}-${selectedMonth.month.toString().padLeft(2, '0')}';
+
       // Verify lesson group exists in backend before using it
       String? verifiedLessonGroupId = selectedLessonGroupId;
       if (selectedLessonGroupId != null && selectedLessonGroupId.isNotEmpty) {
         try {
-          final group = await _lessonGroupService.getLessonGroupById(selectedLessonGroupId);
+          final group = await _lessonGroupService
+              .getLessonGroupById(selectedLessonGroupId);
           if (group == null) {
             // Lesson group doesn't exist in backend (likely from mock data)
             verifiedLessonGroupId = null;
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Note: Selected lesson group not found in system. Payment will be created without lesson group assignment.'),
+                  content: Text(
+                      'Note: Selected lesson group not found in system. Payment will be created without lesson group assignment.'),
                   backgroundColor: Colors.orange,
                   duration: Duration(seconds: 3),
                 ),
@@ -282,7 +300,8 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Note: Could not verify lesson group. Payment will be created without lesson group assignment.'),
+                content: Text(
+                    'Note: Could not verify lesson group. Payment will be created without lesson group assignment.'),
                 backgroundColor: Colors.orange,
                 duration: Duration(seconds: 3),
               ),
@@ -293,7 +312,7 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
         // lessonGroupId is null or empty, which is fine
         verifiedLessonGroupId = null;
       }
-      
+
       await _paymentService.createPayment(
         courseId: course.id,
         amount: course.price,
@@ -301,7 +320,7 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
         month: monthString,
         lessonGroupId: verifiedLessonGroupId,
       );
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -351,7 +370,7 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
               ],
             ),
           ),
-          
+
           // Content
           Expanded(
             child: _isLoading
@@ -495,7 +514,10 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
@@ -538,7 +560,8 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: course.status == 'active'
                           ? Colors.green.withOpacity(0.1)
@@ -548,7 +571,9 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
                     child: Text(
                       course.status.toUpperCase(),
                       style: TextStyle(
-                        color: course.status == 'active' ? Colors.green : Colors.grey,
+                        color: course.status == 'active'
+                            ? Colors.green
+                            : Colors.grey,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                       ),
@@ -617,7 +642,7 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
     Color statusColor;
     IconData statusIcon;
     final isPending = payment.status.toLowerCase() == 'pending';
-    
+
     switch (payment.status.toLowerCase()) {
       case 'completed':
         statusColor = Colors.green;
@@ -676,7 +701,8 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: statusColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
@@ -752,7 +778,8 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
                           ),
                         ),
                       ),
-                      Icon(Icons.arrow_forward_ios, color: Colors.blue[700], size: 16),
+                      Icon(Icons.arrow_forward_ios,
+                          color: Colors.blue[700], size: 16),
                     ],
                   ),
                 ),
@@ -770,8 +797,18 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
 
   String _formatMonth(DateTime date) {
     final monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
     ];
     return '${monthNames[date.month - 1]} ${date.year}';
   }
@@ -815,13 +852,17 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
 
     // Calculate remaining amount (assuming payment.amount is what's been paid)
     // If the backend tracks this differently, we might need to adjust
-    final totalAmount = course?.price ?? payment.amount * 2; // Default to 2x if course not found
+    final totalAmount = course?.price ??
+        payment.amount * 2; // Default to 2x if course not found
     final paidAmount = payment.amount;
-    final remainingAmount = (totalAmount - paidAmount).clamp(0.0, double.infinity);
+    final remainingAmount =
+        (totalAmount - paidAmount).clamp(0.0, double.infinity);
 
     // Show dialog to enter payment amount
     final amountController = TextEditingController(
-      text: (course != null && remainingAmount > 0) ? remainingAmount.toStringAsFixed(0) : '',
+      text: (course != null && remainingAmount > 0)
+          ? remainingAmount.toStringAsFixed(0)
+          : '',
     );
     bool payRemaining = course != null && remainingAmount > 0;
 
@@ -951,7 +992,8 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
       if (_currentUser!.children.isNotEmpty) {
         final firstChild = _currentUser!.children.first;
         if (firstChild is Map<String, dynamic>) {
-          studentId = firstChild['_id'] as String? ?? firstChild['id'] as String?;
+          studentId =
+              firstChild['_id'] as String? ?? firstChild['id'] as String?;
         } else if (firstChild is String) {
           studentId = firstChild;
         }
@@ -965,7 +1007,8 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Error: Student ID not found. Please contact support.'),
+            content:
+                Text('Error: Student ID not found. Please contact support.'),
             backgroundColor: Colors.red,
           ),
         );
@@ -1014,7 +1057,8 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Payment of ${paymentAmount.toStringAsFixed(0)} UZS initiated successfully'),
+            content: Text(
+                'Payment of ${paymentAmount.toStringAsFixed(0)} UZS initiated successfully'),
             backgroundColor: Colors.green,
           ),
         );
@@ -1032,4 +1076,3 @@ class _CoursePaymentsPageState extends State<CoursePaymentsPage> {
     }
   }
 }
-

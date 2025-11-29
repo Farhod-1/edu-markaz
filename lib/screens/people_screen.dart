@@ -11,7 +11,8 @@ class PeopleScreen extends StatefulWidget {
   State<PeopleScreen> createState() => _PeopleScreenState();
 }
 
-class _PeopleScreenState extends State<PeopleScreen> with SingleTickerProviderStateMixin {
+class _PeopleScreenState extends State<PeopleScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int _refreshKey = 0;
 
@@ -76,7 +77,7 @@ class _PeopleScreenState extends State<PeopleScreen> with SingleTickerProviderSt
   void _showCreateUserDialog(BuildContext context) {
     final currentTab = _tabController.index;
     String? fixedRole;
-    
+
     switch (currentTab) {
       case 0:
         fixedRole = 'STUDENT';
@@ -114,7 +115,8 @@ class _UserListTab extends StatefulWidget {
   State<_UserListTab> createState() => _UserListTabState();
 }
 
-class _UserListTabState extends State<_UserListTab> with AutomaticKeepAliveClientMixin {
+class _UserListTabState extends State<_UserListTab>
+    with AutomaticKeepAliveClientMixin {
   final UserService _userService = UserService();
   final ScrollController _scrollController = ScrollController();
   List<User> _users = [];
@@ -140,7 +142,8 @@ class _UserListTabState extends State<_UserListTab> with AutomaticKeepAliveClien
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200 &&
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200 &&
         !_isLoading &&
         _hasMore) {
       _fetchUsers();
@@ -155,7 +158,8 @@ class _UserListTabState extends State<_UserListTab> with AutomaticKeepAliveClien
     });
 
     try {
-      final newUsers = await _userService.getUsers(page: _page, role: widget.role);
+      final newUsers =
+          await _userService.getUsers(page: _page, role: widget.role);
       setState(() {
         _users.addAll(newUsers);
         _page++;
@@ -189,7 +193,8 @@ class _UserListTabState extends State<_UserListTab> with AutomaticKeepAliveClien
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete User'),
-        content: Text('Are you sure you want to delete ${user.name.isNotEmpty ? user.name : user.phoneNumber}?'),
+        content: Text(
+            'Are you sure you want to delete ${user.name.isNotEmpty ? user.name : user.phoneNumber}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -408,7 +413,8 @@ class _UserListTabState extends State<_UserListTab> with AutomaticKeepAliveClien
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: roleColor.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
@@ -424,7 +430,8 @@ class _UserListTabState extends State<_UserListTab> with AutomaticKeepAliveClien
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: user.status == 'ACTIVE'
                                 ? Colors.green.withOpacity(0.1)
@@ -436,7 +443,9 @@ class _UserListTabState extends State<_UserListTab> with AutomaticKeepAliveClien
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
-                              color: user.status == 'ACTIVE' ? Colors.green : Colors.grey,
+                              color: user.status == 'ACTIVE'
+                                  ? Colors.green
+                                  : Colors.grey,
                             ),
                           ),
                         ),
@@ -452,7 +461,8 @@ class _UserListTabState extends State<_UserListTab> with AutomaticKeepAliveClien
                     case 'edit':
                       final success = await showDialog(
                         context: context,
-                        builder: (context) => CreateUserModal(userToEdit: user.toJson()),
+                        builder: (context) =>
+                            CreateUserModal(userToEdit: user.toJson()),
                       );
                       if (success == true) _refresh();
                       break;

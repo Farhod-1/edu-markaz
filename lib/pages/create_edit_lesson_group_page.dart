@@ -13,7 +13,8 @@ class CreateEditLessonGroupPage extends StatefulWidget {
   });
 
   @override
-  State<CreateEditLessonGroupPage> createState() => _CreateEditLessonGroupPageState();
+  State<CreateEditLessonGroupPage> createState() =>
+      _CreateEditLessonGroupPageState();
 }
 
 class _CreateEditLessonGroupPageState extends State<CreateEditLessonGroupPage> {
@@ -22,10 +23,10 @@ class _CreateEditLessonGroupPageState extends State<CreateEditLessonGroupPage> {
   final _descriptionController = TextEditingController();
   final _scheduleController = TextEditingController();
   final _maxStudentsController = TextEditingController();
-  
+
   final CourseService _courseService = CourseService();
   final LessonGroupService _lessonGroupService = LessonGroupService();
-  
+
   List<Course> _courses = [];
   Course? _selectedCourse;
   DateTime? _startDate;
@@ -91,7 +92,9 @@ class _CreateEditLessonGroupPageState extends State<CreateEditLessonGroupPage> {
   Future<void> _selectDate(bool isStartDate) async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: isStartDate ? (_startDate ?? DateTime.now()) : (_endDate ?? DateTime.now()),
+      initialDate: isStartDate
+          ? (_startDate ?? DateTime.now())
+          : (_endDate ?? DateTime.now()),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
     );
@@ -203,7 +206,8 @@ class _CreateEditLessonGroupPageState extends State<CreateEditLessonGroupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.group == null ? 'Create Lesson Group' : 'Edit Lesson Group'),
+        title: Text(
+            widget.group == null ? 'Create Lesson Group' : 'Edit Lesson Group'),
         actions: [
           if (widget.group != null)
             IconButton(
@@ -279,7 +283,8 @@ class _CreateEditLessonGroupPageState extends State<CreateEditLessonGroupPage> {
                     TextFormField(
                       controller: _scheduleController,
                       decoration: const InputDecoration(
-                        labelText: 'Schedule (e.g., Monday, Wednesday - 9:00 AM)',
+                        labelText:
+                            'Schedule (e.g., Monday, Wednesday - 9:00 AM)',
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -339,8 +344,10 @@ class _CreateEditLessonGroupPageState extends State<CreateEditLessonGroupPage> {
                           border: OutlineInputBorder(),
                         ),
                         items: const [
-                          DropdownMenuItem(value: 'active', child: Text('Active')),
-                          DropdownMenuItem(value: 'inactive', child: Text('Inactive')),
+                          DropdownMenuItem(
+                              value: 'active', child: Text('Active')),
+                          DropdownMenuItem(
+                              value: 'inactive', child: Text('Inactive')),
                           DropdownMenuItem(value: 'full', child: Text('Full')),
                         ],
                         onChanged: (value) {
@@ -364,7 +371,9 @@ class _CreateEditLessonGroupPageState extends State<CreateEditLessonGroupPage> {
                               width: 20,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                          : Text(widget.group == null ? 'Create Group' : 'Update Group'),
+                          : Text(widget.group == null
+                              ? 'Create Group'
+                              : 'Update Group'),
                     ),
                   ],
                 ),
@@ -378,7 +387,8 @@ class _CreateEditLessonGroupPageState extends State<CreateEditLessonGroupPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Lesson Group'),
-        content: const Text('Are you sure you want to delete this lesson group? This action cannot be undone.'),
+        content: const Text(
+            'Are you sure you want to delete this lesson group? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -418,4 +428,3 @@ class _CreateEditLessonGroupPageState extends State<CreateEditLessonGroupPage> {
     }
   }
 }
-

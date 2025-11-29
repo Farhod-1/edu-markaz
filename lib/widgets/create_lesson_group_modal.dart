@@ -25,12 +25,12 @@ class _CreateLessonGroupModalState extends State<CreateLessonGroupModal> {
   final _userService = UserService();
 
   final _nameController = TextEditingController();
-  
+
   List<Course> _courses = [];
   List<Room> _rooms = [];
   List<User> _teachers = [];
   List<User> _students = [];
-  
+
   String? _selectedCourseId;
   String? _selectedRoomId;
   String? _selectedTeacherId;
@@ -42,7 +42,13 @@ class _CreateLessonGroupModalState extends State<CreateLessonGroupModal> {
   String _error = '';
 
   final List<String> _weekDays = [
-    'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+    'sunday'
   ];
 
   @override
@@ -65,13 +71,14 @@ class _CreateLessonGroupModalState extends State<CreateLessonGroupModal> {
           _rooms = rooms;
           _teachers = teachers;
           _students = students;
-          
+
           if (widget.groupToEdit != null) {
             _nameController.text = widget.groupToEdit!.name;
             _selectedCourseId = widget.groupToEdit!.courseId;
             // _selectedRoomId = widget.groupToEdit!.roomId; // Assuming LessonGroup has roomId
-            _selectedDays.addAll(widget.groupToEdit!.days.map((e) => e.toLowerCase()));
-            
+            _selectedDays
+                .addAll(widget.groupToEdit!.days.map((e) => e.toLowerCase()));
+
             // Map student IDs
             for (var s in widget.groupToEdit!.studentIds) {
               final id = s['_id'] ?? s['id'];
@@ -80,7 +87,7 @@ class _CreateLessonGroupModalState extends State<CreateLessonGroupModal> {
               }
             }
           }
-          
+
           _isInitLoading = false;
         });
       }
@@ -119,7 +126,8 @@ class _CreateLessonGroupModalState extends State<CreateLessonGroupModal> {
       };
 
       if (widget.groupToEdit != null) {
-        await _lessonGroupService.updateLessonGroup(widget.groupToEdit!.id, groupData);
+        await _lessonGroupService.updateLessonGroup(
+            widget.groupToEdit!.id, groupData);
       } else {
         await _lessonGroupService.createLessonGroup(groupData);
       }
@@ -128,7 +136,9 @@ class _CreateLessonGroupModalState extends State<CreateLessonGroupModal> {
         Navigator.pop(context, true);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(widget.groupToEdit != null ? 'Group updated successfully' : 'Group created successfully'),
+            content: Text(widget.groupToEdit != null
+                ? 'Group updated successfully'
+                : 'Group created successfully'),
             backgroundColor: Colors.green,
           ),
         );
@@ -181,7 +191,9 @@ class _CreateLessonGroupModalState extends State<CreateLessonGroupModal> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.groupToEdit != null ? 'Edit Lesson Group' : 'Create Lesson Group',
+                        widget.groupToEdit != null
+                            ? 'Edit Lesson Group'
+                            : 'Create Lesson Group',
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -207,7 +219,7 @@ class _CreateLessonGroupModalState extends State<CreateLessonGroupModal> {
               ),
             ),
             const Divider(height: 1),
-            
+
             // Content
             Expanded(
               child: SingleChildScrollView(
@@ -228,7 +240,8 @@ class _CreateLessonGroupModalState extends State<CreateLessonGroupModal> {
                           ),
                           child: Row(
                             children: [
-                              Icon(Icons.error_outline, color: Colors.red.shade700),
+                              Icon(Icons.error_outline,
+                                  color: Colors.red.shade700),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
@@ -247,9 +260,12 @@ class _CreateLessonGroupModalState extends State<CreateLessonGroupModal> {
                         decoration: const InputDecoration(
                           hintText: 'Enter lesson group name',
                           border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 14),
                         ),
-                        validator: (v) => v == null || v.trim().isEmpty ? 'Name is required' : null,
+                        validator: (v) => v == null || v.trim().isEmpty
+                            ? 'Name is required'
+                            : null,
                       ),
                       const SizedBox(height: 24),
 
@@ -288,7 +304,8 @@ class _CreateLessonGroupModalState extends State<CreateLessonGroupModal> {
                       const SizedBox(height: 4),
                       Text(
                         'Assign teacher, course, and room for this group',
-                        style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                        style: TextStyle(
+                            color: Colors.grey.shade600, fontSize: 14),
                       ),
                       const SizedBox(height: 16),
 
@@ -304,13 +321,19 @@ class _CreateLessonGroupModalState extends State<CreateLessonGroupModal> {
                                   decoration: const InputDecoration(
                                     hintText: 'Select a teacher (optional)',
                                     border: OutlineInputBorder(),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 14),
                                   ),
-                                  items: _teachers.map((t) => DropdownMenuItem(
-                                    value: t.id,
-                                    child: Text(t.name.isNotEmpty ? t.name : t.phoneNumber),
-                                  )).toList(),
-                                  onChanged: (v) => setState(() => _selectedTeacherId = v),
+                                  items: _teachers
+                                      .map((t) => DropdownMenuItem(
+                                            value: t.id,
+                                            child: Text(t.name.isNotEmpty
+                                                ? t.name
+                                                : t.phoneNumber),
+                                          ))
+                                      .toList(),
+                                  onChanged: (v) =>
+                                      setState(() => _selectedTeacherId = v),
                                 ),
                               ],
                             ),
@@ -326,13 +349,17 @@ class _CreateLessonGroupModalState extends State<CreateLessonGroupModal> {
                                   decoration: const InputDecoration(
                                     hintText: 'Select a course (optional)',
                                     border: OutlineInputBorder(),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 14),
                                   ),
-                                  items: _courses.map((c) => DropdownMenuItem(
-                                    value: c.id,
-                                    child: Text(c.name),
-                                  )).toList(),
-                                  onChanged: (v) => setState(() => _selectedCourseId = v),
+                                  items: _courses
+                                      .map((c) => DropdownMenuItem(
+                                            value: c.id,
+                                            child: Text(c.name),
+                                          ))
+                                      .toList(),
+                                  onChanged: (v) =>
+                                      setState(() => _selectedCourseId = v),
                                 ),
                               ],
                             ),
@@ -340,19 +367,22 @@ class _CreateLessonGroupModalState extends State<CreateLessonGroupModal> {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      
+
                       _buildLabel('Room', required: false),
                       DropdownButtonFormField<String>(
                         value: _selectedRoomId,
                         decoration: const InputDecoration(
                           hintText: 'Select a room (optional)',
                           border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 14),
                         ),
-                        items: _rooms.map((r) => DropdownMenuItem(
-                          value: r.id,
-                          child: Text('${r.name} (Cap: ${r.capacity})'),
-                        )).toList(),
+                        items: _rooms
+                            .map((r) => DropdownMenuItem(
+                                  value: r.id,
+                                  child: Text('${r.name} (Cap: ${r.capacity})'),
+                                ))
+                            .toList(),
                         onChanged: (v) => setState(() => _selectedRoomId = v),
                       ),
                       const SizedBox(height: 24),
@@ -376,9 +406,12 @@ class _CreateLessonGroupModalState extends State<CreateLessonGroupModal> {
                           itemCount: _students.length,
                           itemBuilder: (context, index) {
                             final student = _students[index];
-                            final isSelected = _selectedStudentIds.contains(student.id);
+                            final isSelected =
+                                _selectedStudentIds.contains(student.id);
                             return CheckboxListTile(
-                              title: Text(student.name.isNotEmpty ? student.name : student.phoneNumber),
+                              title: Text(student.name.isNotEmpty
+                                  ? student.name
+                                  : student.phoneNumber),
                               subtitle: Text(student.phoneNumber),
                               value: isSelected,
                               onChanged: (val) {
@@ -400,7 +433,7 @@ class _CreateLessonGroupModalState extends State<CreateLessonGroupModal> {
               ),
             ),
             const Divider(height: 1),
-            
+
             // Actions
             Padding(
               padding: const EdgeInsets.all(24.0),
@@ -410,7 +443,8 @@ class _CreateLessonGroupModalState extends State<CreateLessonGroupModal> {
                   OutlinedButton(
                     onPressed: _isLoading ? null : () => Navigator.pop(context),
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32, vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -421,7 +455,8 @@ class _CreateLessonGroupModalState extends State<CreateLessonGroupModal> {
                   ElevatedButton(
                     onPressed: _isLoading ? null : _submit,
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32, vertical: 16),
                       backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
@@ -434,10 +469,12 @@ class _CreateLessonGroupModalState extends State<CreateLessonGroupModal> {
                             height: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
-                        : Text(widget.groupToEdit != null ? 'Update' : 'Create'),
+                        : Text(
+                            widget.groupToEdit != null ? 'Update' : 'Create'),
                   ),
                 ],
               ),

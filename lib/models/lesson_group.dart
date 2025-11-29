@@ -61,7 +61,8 @@ class LessonGroup {
     if (teacher is Map<String, dynamic>) {
       teacherIdValue = (teacher['_id'] ?? teacher['id'] ?? '').toString();
       teacherNameValue = (teacher['name'] ?? '').toString();
-      teacherPhoneValue = (teacher['phoneNumber'] ?? teacher['phone'] ?? '').toString();
+      teacherPhoneValue =
+          (teacher['phoneNumber'] ?? teacher['phone'] ?? '').toString();
     } else if (teacher is String) {
       teacherIdValue = teacher;
     }
@@ -109,10 +110,9 @@ class LessonGroup {
     }).toList();
 
     // Parse days
-    final daysList = (json['days'] as List<dynamic>?)
-            ?.map((d) => d.toString())
-            .toList() ??
-        [];
+    final daysList =
+        (json['days'] as List<dynamic>?)?.map((d) => d.toString()).toList() ??
+            [];
 
     return LessonGroup(
       id: (json['_id'] ?? json['id'] ?? '').toString(),
@@ -129,7 +129,9 @@ class LessonGroup {
       studentIds: students,
       roomId: roomIdValue,
       maxStudents: json['maxStudents'] as int? ?? json['max_students'] as int?,
-      currentStudents: json['currentStudents'] as int? ?? json['current_students'] as int? ?? students.length,
+      currentStudents: json['currentStudents'] as int? ??
+          json['current_students'] as int? ??
+          students.length,
       status: json['status'] as String? ?? 'active',
       startDate: parseDate(json['startDate'] ?? json['start_date']),
       endDate: parseDate(json['endDate'] ?? json['end_date']),
@@ -167,9 +169,9 @@ class LessonGroup {
 
   // Helper getters for UI display
   int get studentCount => studentIds.length;
-  
+
   String get daysDisplay => days.isEmpty ? 'No days set' : days.join(', ');
-  
+
   bool get hasTeacher => teacherId != null && teacherId!.isNotEmpty;
 
   bool get isFull {

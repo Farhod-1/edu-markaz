@@ -20,7 +20,8 @@ class IdValidator {
   static String validateAndThrow(String? id, String fieldName) {
     final cleaned = cleanId(id);
     if (cleaned == null) {
-      throw ArgumentError('Invalid $fieldName: must be a 24-character MongoDB ObjectId');
+      throw ArgumentError(
+          'Invalid $fieldName: must be a 24-character MongoDB ObjectId');
     }
     return cleaned;
   }

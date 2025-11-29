@@ -4,7 +4,7 @@ import '../models/lesson_group.dart';
 import 'auth_service.dart';
 
 /// Service for managing lesson groups via the API
-/// 
+///
 /// API Endpoints:
 /// - GET    /lesson-groups              - Get all lesson groups with filters
 /// - POST   /lesson-groups              - Create a new lesson group
@@ -22,7 +22,7 @@ class LessonGroupService {
 
   /// GET /lesson-groups
   /// Get all lesson groups with optional filters and pagination
-  /// 
+  ///
   /// Parameters:
   /// - [page]: Page number (starts from 1), default: 1
   /// - [limit]: Number of items per page, default: 10
@@ -48,26 +48,32 @@ class LessonGroupService {
         'page': page.toString(),
         'limit': limit.toString(),
       };
-      
+
       if (search != null && search.isNotEmpty) queryParams['search'] = search;
-      if (teacherId != null && teacherId.isNotEmpty) queryParams['teacherId'] = teacherId;
-      if (studentId != null && studentId.isNotEmpty) queryParams['studentId'] = studentId;
-      if (courseId != null && courseId.isNotEmpty) queryParams['courseId'] = courseId;
+      if (teacherId != null && teacherId.isNotEmpty)
+        queryParams['teacherId'] = teacherId;
+      if (studentId != null && studentId.isNotEmpty)
+        queryParams['studentId'] = studentId;
+      if (courseId != null && courseId.isNotEmpty)
+        queryParams['courseId'] = courseId;
       if (roomId != null && roomId.isNotEmpty) queryParams['roomId'] = roomId;
       if (days != null && days.isNotEmpty) queryParams['days'] = days;
 
-      final uri = Uri.parse('$baseUrl/lesson-groups').replace(queryParameters: queryParams);
+      final uri = Uri.parse('$baseUrl/lesson-groups')
+          .replace(queryParameters: queryParams);
       final response = await http.get(uri, headers: headers);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as dynamic;
-        
+
         // Handle different response formats
         if (data is Map<String, dynamic>) {
-          final groupsData = data['lessonGroups'] ?? data['data'] ?? data['groups'] ?? [];
+          final groupsData =
+              data['lessonGroups'] ?? data['data'] ?? data['groups'] ?? [];
           if (groupsData is List) {
             return groupsData
-                .map((json) => LessonGroup.fromJson(json as Map<String, dynamic>))
+                .map((json) =>
+                    LessonGroup.fromJson(json as Map<String, dynamic>))
                 .toList();
           }
         } else if (data is List) {
@@ -75,11 +81,12 @@ class LessonGroupService {
               .map((json) => LessonGroup.fromJson(json as Map<String, dynamic>))
               .toList();
         }
-        
+
         return [];
       } else {
         final errorData = jsonDecode(response.body) as Map<String, dynamic>?;
-        final errorMessage = errorData?['message'] ?? 'Failed to load lesson groups';
+        final errorMessage =
+            errorData?['message'] ?? 'Failed to load lesson groups';
         throw Exception('$errorMessage (${response.statusCode})');
       }
     } catch (e) {
@@ -104,7 +111,8 @@ class LessonGroupService {
         return null;
       } else {
         final errorData = jsonDecode(response.body) as Map<String, dynamic>?;
-        final errorMessage = errorData?['message'] ?? 'Failed to load lesson group';
+        final errorMessage =
+            errorData?['message'] ?? 'Failed to load lesson group';
         throw Exception('$errorMessage (${response.statusCode})');
       }
     } catch (e) {
@@ -114,10 +122,10 @@ class LessonGroupService {
 
   /// POST /lesson-groups
   /// Create a new lesson group
-  /// 
+  ///
   /// Required fields in [groupData]:
   /// - name: String
-  /// 
+  ///
   /// Optional fields:
   /// - teacherId: String (MongoDB ObjectId)
   /// - studentIds: List<String> (array of MongoDB ObjectIds)
@@ -125,7 +133,7 @@ class LessonGroupService {
   /// - days: List<String> (e.g., ["monday", "wednesday", "friday"])
   /// - courseId: String (MongoDB ObjectId)
   /// - roomId: String (MongoDB ObjectId)
-  /// 
+  ///
   /// Returns: The created lesson group
   /// Throws: Exception on error (403 if unauthorized)
   Future<LessonGroup> createLessonGroup(Map<String, dynamic> groupData) async {
@@ -141,10 +149,12 @@ class LessonGroupService {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
         return LessonGroup.fromJson(data);
       } else if (response.statusCode == 403) {
-        throw Exception('Forbidden: Only OWNER, ADMIN, and TEACHER can create lesson groups');
+        throw Exception(
+            'Forbidden: Only OWNER, ADMIN, and TEACHER can create lesson groups');
       } else {
         final errorData = jsonDecode(response.body) as Map<String, dynamic>?;
-        final errorMessage = errorData?['message'] ?? 'Failed to create lesson group';
+        final errorMessage =
+            errorData?['message'] ?? 'Failed to create lesson group';
         throw Exception('$errorMessage (${response.statusCode})');
       }
     } catch (e) {
@@ -154,14 +164,15 @@ class LessonGroupService {
 
   /// PATCH /lesson-groups/{id}
   /// Update a lesson group
-  /// 
+  ///
   /// Parameters:
   /// - [id]: Lesson group ID
   /// - [groupData]: Map containing fields to update (same as create)
-  /// 
+  ///
   /// Returns: The updated lesson group
   /// Throws: Exception on error (403 if unauthorized, 404 if not found)
-  Future<LessonGroup> updateLessonGroup(String id, Map<String, dynamic> groupData) async {
+  Future<LessonGroup> updateLessonGroup(
+      String id, Map<String, dynamic> groupData) async {
     try {
       final headers = await _authService.getAuthHeaders();
       final response = await http.patch(
@@ -174,12 +185,14 @@ class LessonGroupService {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
         return LessonGroup.fromJson(data);
       } else if (response.statusCode == 403) {
-        throw Exception('Forbidden: Only OWNER, ADMIN, and TEACHER can update lesson groups');
+        throw Exception(
+            'Forbidden: Only OWNER, ADMIN, and TEACHER can update lesson groups');
       } else if (response.statusCode == 404) {
         throw Exception('Lesson group not found');
       } else {
         final errorData = jsonDecode(response.body) as Map<String, dynamic>?;
-        final errorMessage = errorData?['message'] ?? 'Failed to update lesson group';
+        final errorMessage =
+            errorData?['message'] ?? 'Failed to update lesson group';
         throw Exception('$errorMessage (${response.statusCode})');
       }
     } catch (e) {
@@ -203,7 +216,8 @@ class LessonGroupService {
         throw Exception('Lesson group not found');
       } else {
         final errorData = jsonDecode(response.body) as Map<String, dynamic>?;
-        final errorMessage = errorData?['message'] ?? 'Failed to delete lesson group';
+        final errorMessage =
+            errorData?['message'] ?? 'Failed to delete lesson group';
         throw Exception('$errorMessage (${response.statusCode})');
       }
     } catch (e) {
@@ -214,7 +228,8 @@ class LessonGroupService {
   /// GET /lesson-groups/{id}/relationships
   /// Get detailed relationships for a lesson group
   /// Returns full details of related students, teachers, course, room, etc.
-  Future<Map<String, dynamic>> getLessonGroupRelationships(String groupId) async {
+  Future<Map<String, dynamic>> getLessonGroupRelationships(
+      String groupId) async {
     try {
       final headers = await _authService.getAuthHeaders();
       final response = await http.get(
@@ -228,7 +243,8 @@ class LessonGroupService {
         throw Exception('Lesson group not found');
       } else {
         final errorData = jsonDecode(response.body) as Map<String, dynamic>?;
-        final errorMessage = errorData?['message'] ?? 'Failed to load relationships';
+        final errorMessage =
+            errorData?['message'] ?? 'Failed to load relationships';
         throw Exception('$errorMessage (${response.statusCode})');
       }
     } catch (e) {
@@ -252,7 +268,8 @@ class LessonGroupService {
         throw Exception('Lesson group or student not found');
       } else {
         final errorData = jsonDecode(response.body) as Map<String, dynamic>?;
-        final errorMessage = errorData?['message'] ?? 'Failed to add student to group';
+        final errorMessage =
+            errorData?['message'] ?? 'Failed to add student to group';
         throw Exception('$errorMessage (${response.statusCode})');
       }
     } catch (e) {
@@ -276,7 +293,8 @@ class LessonGroupService {
         throw Exception('Lesson group or student not found');
       } else {
         final errorData = jsonDecode(response.body) as Map<String, dynamic>?;
-        final errorMessage = errorData?['message'] ?? 'Failed to remove student from group';
+        final errorMessage =
+            errorData?['message'] ?? 'Failed to remove student from group';
         throw Exception('$errorMessage (${response.statusCode})');
       }
     } catch (e) {
@@ -300,7 +318,8 @@ class LessonGroupService {
         throw Exception('Lesson group or teacher not found');
       } else {
         final errorData = jsonDecode(response.body) as Map<String, dynamic>?;
-        final errorMessage = errorData?['message'] ?? 'Failed to assign teacher to group';
+        final errorMessage =
+            errorData?['message'] ?? 'Failed to assign teacher to group';
         throw Exception('$errorMessage (${response.statusCode})');
       }
     } catch (e) {
@@ -324,7 +343,8 @@ class LessonGroupService {
         throw Exception('Lesson group not found');
       } else {
         final errorData = jsonDecode(response.body) as Map<String, dynamic>?;
-        final errorMessage = errorData?['message'] ?? 'Failed to remove teacher from group';
+        final errorMessage =
+            errorData?['message'] ?? 'Failed to remove teacher from group';
         throw Exception('$errorMessage (${response.statusCode})');
       }
     } catch (e) {

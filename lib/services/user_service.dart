@@ -19,10 +19,10 @@ class UserService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data is Map<String, dynamic> && data.containsKey('users')) {
-           final List<dynamic> usersJson = data['users'];
-           return usersJson.map((json) => Teacher.fromJson(json)).toList();
+          final List<dynamic> usersJson = data['users'];
+          return usersJson.map((json) => Teacher.fromJson(json)).toList();
         } else if (data is List) {
-           return data.map((json) => Teacher.fromJson(json)).toList();
+          return data.map((json) => Teacher.fromJson(json)).toList();
         }
       }
       return [];
@@ -42,11 +42,11 @@ class UserService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-         if (data is Map<String, dynamic> && data.containsKey('users')) {
-           final List<dynamic> usersJson = data['users'];
-           return usersJson.map((json) => Parent.fromJson(json)).toList();
+        if (data is Map<String, dynamic> && data.containsKey('users')) {
+          final List<dynamic> usersJson = data['users'];
+          return usersJson.map((json) => Parent.fromJson(json)).toList();
         } else if (data is List) {
-           return data.map((json) => Parent.fromJson(json)).toList();
+          return data.map((json) => Parent.fromJson(json)).toList();
         }
       }
       return [];
@@ -62,9 +62,9 @@ class UserService {
 
     try {
       teacherData['role'] = 'teacher';
-      
+
       final response = await http.post(
-        uri, 
+        uri,
         headers: headers,
         body: jsonEncode(teacherData),
       );
@@ -82,9 +82,9 @@ class UserService {
 
     try {
       parentData['role'] = 'parent';
-      
+
       final response = await http.post(
-        uri, 
+        uri,
         headers: headers,
         body: jsonEncode(parentData),
       );
@@ -96,7 +96,8 @@ class UserService {
     }
   }
 
-  Future<List<User>> getUsers({int page = 1, int limit = 50, String? role}) async {
+  Future<List<User>> getUsers(
+      {int page = 1, int limit = 50, String? role}) async {
     final headers = await _authService.getAuthHeaders();
     String url = '${AppConstants.baseUrl}/users?page=$page&limit=$limit';
     if (role != null && role.isNotEmpty) {

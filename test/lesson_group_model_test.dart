@@ -52,30 +52,30 @@ void main() {
 
       expect(lessonGroup.id, '692a9aa0d9ce35d4a3a6d2bf');
       expect(lessonGroup.name, 'dsdsdsd');
-      
+
       // Test populated teacher
       expect(lessonGroup.teacherId, '692a928dd9ce35d4a3a6d262');
       expect(lessonGroup.teacherName, 'DSDSDSD');
       expect(lessonGroup.teacherPhone, '+998949998877');
-      
+
       // Test populated students
       expect(lessonGroup.studentIds.length, 2);
       expect(lessonGroup.studentCount, 2);
       expect(lessonGroup.studentIds[0]['_id'], '692a9368d9ce35d4a3a6d27c');
       expect(lessonGroup.studentIds[0]['name'], 'SALOM');
-      
+
       // Test populated organization
       expect(lessonGroup.organizationId, '69170cde33e2c093eae0f819');
       expect(lessonGroup.organizationName, "Zamon's School");
-      
+
       // Test populated course
       expect(lessonGroup.courseId, '692a9890d9ce35d4a3a6d29b');
       expect(lessonGroup.courseName, 'MATH');
-      
+
       // Test days
       expect(lessonGroup.days, ['monday', 'friday']);
       expect(lessonGroup.daysDisplay, 'monday, friday');
-      
+
       // Test status
       expect(lessonGroup.status, 'active');
       expect(lessonGroup.hasTeacher, true);
@@ -102,17 +102,17 @@ void main() {
 
       expect(lessonGroup.id, '6918dd2833e2c093eae0f956');
       expect(lessonGroup.name, 'Friday morning group');
-      
+
       // Test non-populated fields
       expect(lessonGroup.teacherId, '692a928dd9ce35d4a3a6d262');
       expect(lessonGroup.teacherName, null);
-      
+
       expect(lessonGroup.studentIds.length, 1);
       expect(lessonGroup.studentIds[0]['_id'], '6918dcb633e2c093eae0f92b');
-      
+
       expect(lessonGroup.organizationId, '69170cde33e2c093eae0f819');
       expect(lessonGroup.courseId, '692a9890d9ce35d4a3a6d29b');
-      
+
       expect(lessonGroup.days, ['monday', 'tuesday', 'wednesday']);
     });
   });

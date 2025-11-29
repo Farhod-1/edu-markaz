@@ -21,7 +21,13 @@ class _UserListScreenState extends State<UserListScreen> {
   String _error = '';
   String? _selectedRole;
 
-  final List<String> _roles = ['STUDENT', 'TEACHER', 'ADMIN', 'OWNER', 'PARENT'];
+  final List<String> _roles = [
+    'STUDENT',
+    'TEACHER',
+    'ADMIN',
+    'OWNER',
+    'PARENT'
+  ];
 
   @override
   void initState() {
@@ -37,7 +43,8 @@ class _UserListScreenState extends State<UserListScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200 &&
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200 &&
         !_isLoading &&
         _hasMore) {
       _fetchUsers();
@@ -52,7 +59,8 @@ class _UserListScreenState extends State<UserListScreen> {
     });
 
     try {
-      final newUsers = await _userService.getUsers(page: _page, role: _selectedRole);
+      final newUsers =
+          await _userService.getUsers(page: _page, role: _selectedRole);
       setState(() {
         _users.addAll(newUsers);
         _page++;
@@ -97,8 +105,12 @@ class _UserListScreenState extends State<UserListScreen> {
         title: const Text('Delete User'),
         content: Text('Are you sure you want to delete ${user.phoneNumber}?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete', style: TextStyle(color: Colors.red))),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Delete', style: TextStyle(color: Colors.red))),
         ],
       ),
     );
@@ -109,7 +121,8 @@ class _UserListScreenState extends State<UserListScreen> {
         _refresh();
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('Error: $e')));
         }
       }
     }
@@ -183,9 +196,12 @@ class _UserListScreenState extends State<UserListScreen> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Icon(Icons.people, size: 64, color: Colors.grey),
+                                    const Icon(Icons.people,
+                                        size: 64, color: Colors.grey),
                                     const SizedBox(height: 16),
-                                    const Text('No users found', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                                    const Text('No users found',
+                                        style: TextStyle(
+                                            fontSize: 18, color: Colors.grey)),
                                     const SizedBox(height: 16),
                                     ElevatedButton.icon(
                                       onPressed: _refresh,
@@ -199,10 +215,12 @@ class _UserListScreenState extends State<UserListScreen> {
                                 controller: _scrollController,
                                 padding: const EdgeInsets.all(16),
                                 itemCount: _users.length + (_hasMore ? 1 : 0),
-                                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                                separatorBuilder: (_, __) =>
+                                    const SizedBox(height: 8),
                                 itemBuilder: (context, index) {
                                   if (index == _users.length) {
-                                    return const Center(child: Padding(
+                                    return const Center(
+                                        child: Padding(
                                       padding: EdgeInsets.all(16.0),
                                       child: CircularProgressIndicator(),
                                     ));
@@ -212,41 +230,53 @@ class _UserListScreenState extends State<UserListScreen> {
                                   return Card(
                                     child: ListTile(
                                       leading: CircleAvatar(
-                                        child: Text(user.phoneNumber.length > 4 
-                                          ? user.phoneNumber.substring(user.phoneNumber.length - 2) 
-                                          : 'U'),
+                                        child: Text(user.phoneNumber.length > 4
+                                            ? user.phoneNumber.substring(
+                                                user.phoneNumber.length - 2)
+                                            : 'U'),
                                       ),
-                                      title: Text(user.name.isNotEmpty ? user.name : user.phoneNumber),
-                                      subtitle: Text('${user.phoneNumber}\nRole: ${user.role}\nStatus: ${user.status}'),
+                                      title: Text(user.name.isNotEmpty
+                                          ? user.name
+                                          : user.phoneNumber),
+                                      subtitle: Text(
+                                          '${user.phoneNumber}\nRole: ${user.role}\nStatus: ${user.status}'),
                                       isThreeLine: true,
                                       trailing: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           IconButton(
-                                            icon: const Icon(Icons.visibility, color: Colors.blue),
+                                            icon: const Icon(Icons.visibility,
+                                                color: Colors.blue),
                                             onPressed: () {
                                               Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                  builder: (_) => UserDetailScreen(user: user),
+                                                  builder: (_) =>
+                                                      UserDetailScreen(
+                                                          user: user),
                                                 ),
                                               );
                                             },
                                           ),
                                           IconButton(
-                                            icon: const Icon(Icons.edit, color: Colors.orange),
+                                            icon: const Icon(Icons.edit,
+                                                color: Colors.orange),
                                             onPressed: () async {
-                                              final success = await Navigator.push(
+                                              final success =
+                                                  await Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                  builder: (_) => CreateUserScreen(userToEdit: user),
+                                                  builder: (_) =>
+                                                      CreateUserScreen(
+                                                          userToEdit: user),
                                                 ),
                                               );
                                               if (success == true) _refresh();
                                             },
                                           ),
                                           IconButton(
-                                            icon: const Icon(Icons.delete, color: Colors.red),
+                                            icon: const Icon(Icons.delete,
+                                                color: Colors.red),
                                             onPressed: () => _deleteUser(user),
                                           ),
                                         ],

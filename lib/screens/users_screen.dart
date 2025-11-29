@@ -23,14 +23,23 @@ class _UsersScreenState extends State<UsersScreen> {
   }
 
   Future<void> _loadStudents() async {
-    setState(() { _loading = true; _error = ''; });
+    setState(() {
+      _loading = true;
+      _error = '';
+    });
     try {
       final students = await _userService.getStudents();
-      setState(() { _students = students; });
+      setState(() {
+        _students = students;
+      });
     } catch (e) {
-      setState(() { _error = e.toString(); });
+      setState(() {
+        _error = e.toString();
+      });
     } finally {
-      setState(() { _loading = false; });
+      setState(() {
+        _loading = false;
+      });
     }
   }
 
@@ -38,7 +47,8 @@ class _UsersScreenState extends State<UsersScreen> {
   Widget build(BuildContext context) {
     if (_loading) return const Center(child: CircularProgressIndicator());
     if (_error.isNotEmpty) return Center(child: Text('Error: $_error'));
-    if (_students.isEmpty) return const Center(child: Text('No students found'));
+    if (_students.isEmpty)
+      return const Center(child: Text('No students found'));
 
     return Scaffold(
       appBar: AppBar(title: const Text('Students')),

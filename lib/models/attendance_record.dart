@@ -25,7 +25,8 @@ class AttendanceRecord {
       id: (json['_id'] ?? '').toString(),
       date: (json['date'] ?? '').toString(),
       lessonGroupName: lgName.toString(),
-      studentId: '', // will be filled by service when mapping each student record
+      studentId:
+          '', // will be filled by service when mapping each student record
       studentName: '',
       status: '',
       comment: '',

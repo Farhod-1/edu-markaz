@@ -8,7 +8,8 @@ class StudentService {
   final String baseUrl = 'https://edu-markaz.uz/api';
   final AuthService _auth = AuthService();
 
-  Future<List<LessonGroup>> getLessonGroups({int page = 1, int limit = 50}) async {
+  Future<List<LessonGroup>> getLessonGroups(
+      {int page = 1, int limit = 50}) async {
     final headers = await _auth.getAuthHeaders();
     final url = Uri.parse('$baseUrl/lessonGroups?page=$page&limit=$limit');
     final res = await http.get(url, headers: headers);
@@ -22,13 +23,16 @@ class StudentService {
   }
 
   /// Returns flattened attendance records for a student: one entry per student-record
-  Future<List<Map<String, dynamic>>> getAttendanceForStudent(String studentId, {int page = 1, int limit = 50}) async {
+  Future<List<Map<String, dynamic>>> getAttendanceForStudent(String studentId,
+      {int page = 1, int limit = 50}) async {
     final headers = await _auth.getAuthHeaders();
-    final url = Uri.parse('$baseUrl/attendanceRecords?page=$page&limit=$limit&studentId=$studentId');
+    final url = Uri.parse(
+        '$baseUrl/attendanceRecords?page=$page&limit=$limit&studentId=$studentId');
     final res = await http.get(url, headers: headers);
     if (res.statusCode == 200) {
       final body = jsonDecode(res.body);
-      final List<dynamic> attendanceObjects = body['attendanceRecords'] ?? body['data'] ?? [];
+      final List<dynamic> attendanceObjects =
+          body['attendanceRecords'] ?? body['data'] ?? [];
       final List<Map<String, dynamic>> flattened = [];
       for (final att in attendanceObjects) {
         final lessonGroup = att['lessonGroupId'];
@@ -41,7 +45,9 @@ class StudentService {
             'date': att['date'] ?? '',
             'lessonGroupName': lgName,
             'studentId': studentObj is Map ? (studentObj['_id'] ?? '') : '',
-            'studentName': studentObj is Map ? (studentObj['name'] ?? studentObj['phoneNumber'] ?? '') : '',
+            'studentName': studentObj is Map
+                ? (studentObj['name'] ?? studentObj['phoneNumber'] ?? '')
+                : '',
             'status': r['status'] ?? '',
             'comment': r['comment'] ?? '',
           });
@@ -55,7 +61,8 @@ class StudentService {
 
   Future<List<Student>> getStudents({int page = 1, int limit = 50}) async {
     final headers = await _auth.getAuthHeaders();
-    final url = Uri.parse('$baseUrl/users?role=STUDENT&page=$page&limit=$limit');
+    final url =
+        Uri.parse('$baseUrl/users?role=STUDENT&page=$page&limit=$limit');
     final res = await http.get(url, headers: headers);
     if (res.statusCode == 200) {
       final body = jsonDecode(res.body);
