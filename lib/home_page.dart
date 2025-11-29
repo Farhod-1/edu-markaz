@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'login_page.dart';
 import 'models/user.dart';
 import 'profile_page.dart';
+import 'screens/courses_screen.dart';
 import 'screens/people_screen.dart';
 import 'services/auth_service.dart';
 
@@ -17,24 +18,23 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   final authService = AuthService();
 
-  final List<Widget> _screens = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _screens.addAll([
-      const _DashboardScreen(),
-      const PeopleScreen(),
-      const ProfilePage(),
-    ]);
-  }
-
   @override
   Widget build(BuildContext context) {
+    final screens = [
+      _DashboardScreen(onTabSelected: (index) {
+        setState(() {
+          _currentIndex = index;
+        });
+      }),
+      const PeopleScreen(),
+      const ProfilePage(),
+      const _SettingsScreen(),
+    ];
+
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: _screens,
+        children: screens,
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
@@ -60,6 +60,11 @@ class _HomePageState extends State<HomePage> {
             selectedIcon: Icon(Icons.person),
             label: 'Profile',
           ),
+          NavigationDestination(
+            icon: Icon(Icons.settings_outlined),
+            selectedIcon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
         ],
       ),
     );
@@ -67,7 +72,9 @@ class _HomePageState extends State<HomePage> {
 }
 
 class _DashboardScreen extends StatelessWidget {
-  const _DashboardScreen();
+  final Function(int) onTabSelected;
+
+  const _DashboardScreen({required this.onTabSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -210,39 +217,28 @@ class _DashboardScreen extends StatelessWidget {
                         icon: Icons.school,
                         label: 'Students',
                         color: Colors.blue,
-                        onTap: () {
-                          // Navigate to people screen with students tab
-                        },
+                        onTap: () => onTabSelected(1),
                       ),
                       _buildQuickActionCard(
                         context,
                         icon: Icons.person,
                         label: 'Teachers',
                         color: Colors.green,
-                        onTap: () {
-                          // Navigate to people screen with teachers tab
-                        },
+                        onTap: () => onTabSelected(1),
                       ),
                       _buildQuickActionCard(
                         context,
                         icon: Icons.family_restroom,
                         label: 'Parents',
                         color: Colors.orange,
-                        onTap: () {
-                          // Navigate to people screen with parents tab
-                        },
+                        onTap: () => onTabSelected(1),
                       ),
                       _buildQuickActionCard(
                         context,
                         icon: Icons.settings,
                         label: 'Settings',
                         color: Colors.purple,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const _SettingsScreen()),
-                          );
-                        },
+                        onTap: () => onTabSelected(3),
                       ),
                     ],
                   ),
@@ -358,6 +354,24 @@ class _SettingsScreen extends StatelessWidget {
                   ),
             ),
             const SizedBox(height: 32),
+            Card(
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.book_outlined),
+                    title: const Text('Courses'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const CoursesScreen()),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
             Card(
               child: Column(
                 children: [

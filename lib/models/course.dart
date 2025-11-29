@@ -3,6 +3,8 @@ class Course {
   final String name;
   final String? description;
   final double price;
+  final int lessonDuration; // in minutes
+  final String? organizationId;
   final String? imageUrl;
   final String status;
   final DateTime createdAt;
@@ -13,6 +15,8 @@ class Course {
     required this.name,
     this.description,
     required this.price,
+    this.lessonDuration = 0,
+    this.organizationId,
     this.imageUrl,
     required this.status,
     required this.createdAt,
@@ -25,6 +29,8 @@ class Course {
       name: json['name'] as String,
       description: json['description'] as String?,
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
+      lessonDuration: json['lessonDuration'] as int? ?? 0,
+      organizationId: json['organizationId'] as String?,
       imageUrl: json['imageUrl'] as String?,
       status: json['status'] as String? ?? 'active',
       createdAt: json['createdAt'] != null
@@ -42,6 +48,8 @@ class Course {
       'name': name,
       'description': description,
       'price': price,
+      'lessonDuration': lessonDuration,
+      'organizationId': organizationId,
       'imageUrl': imageUrl,
       'status': status,
       'createdAt': createdAt.toIso8601String(),

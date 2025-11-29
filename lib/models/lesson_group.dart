@@ -1,15 +1,15 @@
 class LessonGroup {
   final String id;
   final String name;
-  final List<String> days;
-  final String organizationName;
-  final List<Map<String, dynamic>> studentIds; // minimal - contains id,name,phoneNumber
   final String? description;
-  final String courseId;
+  final String? courseId;
   final String? courseName;
+  final List<String> days;
+  final String? organizationName;
+  final List<Map<String, dynamic>> studentIds;
   final int? maxStudents;
   final int? currentStudents;
-  final String status; // active, inactive, full
+  final String status;
   final DateTime? startDate;
   final DateTime? endDate;
   final String? schedule;
@@ -19,31 +19,12 @@ class LessonGroup {
   LessonGroup({
     required this.id,
     required this.name,
-    required this.days,
-    required this.organizationName,
-    required this.studentIds,
-  });
-
-  factory LessonGroup.fromJson(Map<String, dynamic> json) {
-    final org = json['organizationId'];
-    final orgName = org is Map ? (org['name'] ?? '') : (org ?? '');
-    final rawStudents = json['studentIds'] as List<dynamic>? ?? [];
-    final students = rawStudents.map((e) => Map<String, dynamic>.from(e)).toList();
-    return LessonGroup(
-      id: (json['_id'] ?? '').toString(),
-      name: (json['name'] ?? '').toString(),
-      days: (json['days'] as List<dynamic>?)
-              ?.map((d) => d.toString())
-              .toList() ??
-          [],
-      organizationName: orgName.toString(),
-      studentIds: students,
-    );
-  }
-}
     this.description,
-    required this.courseId,
+    this.courseId,
     this.courseName,
+    this.days = const [],
+    this.organizationName,
+    this.studentIds = const [],
     this.maxStudents,
     this.currentStudents,
     required this.status,
@@ -55,32 +36,44 @@ class LessonGroup {
   });
 
   factory LessonGroup.fromJson(Map<String, dynamic> json) {
+    // Helper to safely parse dates
+    DateTime? parseDate(dynamic value) {
+      if (value == null) return null;
+      if (value is String) return DateTime.tryParse(value);
+      return null;
+    }
+
+    // Parse organization name
+    final org = json['organizationId'];
+    final orgName = org is Map ? (org['name'] ?? '') : (org ?? '');
+
+    // Parse students
+    final rawStudents = json['studentIds'] as List<dynamic>? ?? [];
+    final students = rawStudents.map((e) => Map<String, dynamic>.from(e)).toList();
+
+    // Parse days
+    final daysList = (json['days'] as List<dynamic>?)
+            ?.map((d) => d.toString())
+            .toList() ??
+        [];
+
     return LessonGroup(
-      id: json['_id'] as String? ?? json['id'] as String,
-      name: json['name'] as String,
+      id: (json['_id'] ?? json['id'] ?? '').toString(),
+      name: (json['name'] ?? '').toString(),
       description: json['description'] as String?,
-      courseId: json['courseId'] as String? ?? json['course_id'] as String,
+      courseId: json['courseId'] as String? ?? json['course_id'] as String?,
       courseName: json['courseName'] as String?,
+      days: daysList,
+      organizationName: orgName.toString(),
+      studentIds: students,
       maxStudents: json['maxStudents'] as int? ?? json['max_students'] as int?,
       currentStudents: json['currentStudents'] as int? ?? json['current_students'] as int?,
       status: json['status'] as String? ?? 'active',
-      startDate: json['startDate'] != null
-          ? DateTime.parse(json['startDate'] as String)
-          : json['start_date'] != null
-              ? DateTime.parse(json['start_date'] as String)
-              : null,
-      endDate: json['endDate'] != null
-          ? DateTime.parse(json['endDate'] as String)
-          : json['end_date'] != null
-              ? DateTime.parse(json['end_date'] as String)
-              : null,
+      startDate: parseDate(json['startDate'] ?? json['start_date']),
+      endDate: parseDate(json['endDate'] ?? json['end_date']),
       schedule: json['schedule'] as String?,
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
-          : DateTime.now(),
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.parse(json['updatedAt'] as String)
-          : DateTime.now(),
+      createdAt: parseDate(json['createdAt']) ?? DateTime.now(),
+      updatedAt: parseDate(json['updatedAt']) ?? DateTime.now(),
     );
   }
 
@@ -91,6 +84,9 @@ class LessonGroup {
       'description': description,
       'courseId': courseId,
       'courseName': courseName,
+      'days': days,
+      'organizationName': organizationName,
+      'studentIds': studentIds,
       'maxStudents': maxStudents,
       'currentStudents': currentStudents,
       'status': status,
@@ -120,4 +116,3 @@ class LessonGroup {
     }
   }
 }
-
