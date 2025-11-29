@@ -56,7 +56,8 @@ class _UserListScreenState extends State<UserListScreen> {
       setState(() {
         _users.addAll(newUsers);
         _page++;
-        if (newUsers.isEmpty) {
+        // If we got fewer items than the limit (50), we've reached the end
+        if (newUsers.isEmpty || newUsers.length < 50) {
           _hasMore = false;
         }
       });
@@ -162,7 +163,7 @@ class _UserListScreenState extends State<UserListScreen> {
                       child: const Text('Retry'),
                     ),
                   ],
-                ),
+                ],
               )
             : Column(
                 children: [
@@ -175,66 +176,85 @@ class _UserListScreenState extends State<UserListScreen> {
                       ),
                     ),
                   Expanded(
-                    child: ListView.separated(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.all(16),
-                      itemCount: _users.length + (_hasMore ? 1 : 0),
-                      separatorBuilder: (_, __) => const SizedBox(height: 8),
-                      itemBuilder: (context, index) {
-                        if (index == _users.length) {
-                          return const Center(child: Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: CircularProgressIndicator(),
-                          ));
-                        }
+                    child: _isLoading && _users.isEmpty
+                        ? const Center(child: CircularProgressIndicator())
+                        : _users.isEmpty
+                            ? Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.people, size: 64, color: Colors.grey),
+                                    const SizedBox(height: 16),
+                                    const Text('No users found', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                                    const SizedBox(height: 16),
+                                    ElevatedButton.icon(
+                                      onPressed: _refresh,
+                                      icon: const Icon(Icons.refresh),
+                                      label: const Text('Refresh'),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : ListView.separated(
+                                controller: _scrollController,
+                                padding: const EdgeInsets.all(16),
+                                itemCount: _users.length + (_hasMore ? 1 : 0),
+                                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                                itemBuilder: (context, index) {
+                                  if (index == _users.length) {
+                                    return const Center(child: Padding(
+                                      padding: EdgeInsets.all(16.0),
+                                      child: CircularProgressIndicator(),
+                                    ));
+                                  }
 
-                        final user = _users[index];
-                        return Card(
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              child: Text(user.phoneNumber.length > 4 
-                                ? user.phoneNumber.substring(user.phoneNumber.length - 2) 
-                                : 'U'),
-                            ),
-                            title: Text(user.name.isNotEmpty ? user.name : user.phoneNumber),
-                            subtitle: Text('${user.phoneNumber}\nRole: ${user.role}\nStatus: ${user.status}'),
-                            isThreeLine: true,
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.visibility, color: Colors.blue),
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => UserDetailScreen(user: user),
+                                  final user = _users[index];
+                                  return Card(
+                                    child: ListTile(
+                                      leading: CircleAvatar(
+                                        child: Text(user.phoneNumber.length > 4 
+                                          ? user.phoneNumber.substring(user.phoneNumber.length - 2) 
+                                          : 'U'),
                                       ),
-                                    );
-                                  },
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.edit, color: Colors.orange),
-                                  onPressed: () async {
-                                    final success = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => CreateUserScreen(userToEdit: user),
+                                      title: Text(user.name.isNotEmpty ? user.name : user.phoneNumber),
+                                      subtitle: Text('${user.phoneNumber}\nRole: ${user.role}\nStatus: ${user.status}'),
+                                      isThreeLine: true,
+                                      trailing: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(Icons.visibility, color: Colors.blue),
+                                            onPressed: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (_) => UserDetailScreen(user: user),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(Icons.edit, color: Colors.orange),
+                                            onPressed: () async {
+                                              final success = await Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (_) => CreateUserScreen(userToEdit: user),
+                                                ),
+                                              );
+                                              if (success == true) _refresh();
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(Icons.delete, color: Colors.red),
+                                            onPressed: () => _deleteUser(user),
+                                          ),
+                                        ],
                                       ),
-                                    );
-                                    if (success == true) _refresh();
-                                  },
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete, color: Colors.red),
-                                  onPressed: () => _deleteUser(user),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                                    ),
+                                  );
+                                },
+                              ),
                   ),
                 ],
               ),

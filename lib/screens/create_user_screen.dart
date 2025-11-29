@@ -62,12 +62,12 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
           if (_passwordController.text.isNotEmpty) 'password': _passwordController.text,
         });
       } else {
-        await _userService.createUser(
-          _phoneController.text,
-          _passwordController.text,
-          _role,
-          _nameController.text,
-        );
+        await _userService.createUser({
+          'phoneNumber': _phoneController.text,
+          'password': _passwordController.text,
+          'role': _role,
+          'name': _nameController.text,
+        });
       }
       if (mounted) {
         Navigator.pop(context, true); // Return true to indicate success

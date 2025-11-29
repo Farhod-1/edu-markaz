@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/lesson_group.dart';
 import '../models/attendance_record.dart';
+import '../models/student.dart';
 import 'auth_service.dart';
 
 class StudentService {
@@ -50,6 +51,30 @@ class StudentService {
       return flattened;
     } else {
       throw Exception('Failed to load attendance: ${res.statusCode}');
+    }
+  }
+
+  Future<List<Student>> getStudents({int page = 1, int limit = 50}) async {
+    final headers = await _auth.getAuthHeaders();
+    final url = Uri.parse('$baseUrl/users?role=STUDENT&page=$page&limit=$limit');
+    final res = await http.get(url, headers: headers);
+    if (res.statusCode == 200) {
+      final body = jsonDecode(res.body);
+      final List<dynamic> students = body['users'] ?? body['data'] ?? [];
+      return students.map((e) => Student.fromJson(e)).toList();
+    } else {
+      throw Exception('Failed to load students: ${res.statusCode}');
+    }
+  }
+
+  Future<bool> deleteStudent(String studentId) async {
+    final headers = await _auth.getAuthHeaders();
+    final url = Uri.parse('$baseUrl/users/$studentId');
+    final res = await http.delete(url, headers: headers);
+    if (res.statusCode >= 200 && res.statusCode < 300) {
+      return true;
+    } else {
+      throw Exception('Failed to delete student: ${res.statusCode}');
     }
   }
 }

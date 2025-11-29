@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import '../utils/constants.dart';
 import '../models/teacher.dart';
 import '../models/parent.dart';
+import '../models/user.dart';
 import 'auth_service.dart';
 
 class UserService {
@@ -91,6 +92,82 @@ class UserService {
       return response.statusCode >= 200 && response.statusCode < 300;
     } catch (e) {
       print('Error creating parent: $e');
+      return false;
+    }
+  }
+
+  Future<List<User>> getUsers({int page = 1, int limit = 50, String? role}) async {
+    final headers = await _authService.getAuthHeaders();
+    String url = '${AppConstants.baseUrl}/users?page=$page&limit=$limit';
+    if (role != null && role.isNotEmpty) {
+      url += '&role=$role';
+    }
+    final uri = Uri.parse(url);
+
+    try {
+      final response = await http.get(uri, headers: headers);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data is Map<String, dynamic> && data.containsKey('users')) {
+          final List<dynamic> usersJson = data['users'];
+          return usersJson.map((json) => User.fromJson(json)).toList();
+        } else if (data is List) {
+          return data.map((json) => User.fromJson(json)).toList();
+        }
+      }
+      return [];
+    } catch (e) {
+      print('Error fetching users: $e');
+      return [];
+    }
+  }
+
+  Future<bool> createUser(Map<String, dynamic> userData) async {
+    final headers = await _authService.getAuthHeaders();
+    final uri = Uri.parse('${AppConstants.baseUrl}/users');
+
+    try {
+      final response = await http.post(
+        uri,
+        headers: headers,
+        body: jsonEncode(userData),
+      );
+
+      return response.statusCode >= 200 && response.statusCode < 300;
+    } catch (e) {
+      print('Error creating user: $e');
+      return false;
+    }
+  }
+
+  Future<bool> updateUser(String userId, Map<String, dynamic> userData) async {
+    final headers = await _authService.getAuthHeaders();
+    final uri = Uri.parse('${AppConstants.baseUrl}/users/$userId');
+
+    try {
+      final response = await http.put(
+        uri,
+        headers: headers,
+        body: jsonEncode(userData),
+      );
+
+      return response.statusCode >= 200 && response.statusCode < 300;
+    } catch (e) {
+      print('Error updating user: $e');
+      return false;
+    }
+  }
+
+  Future<bool> deleteUser(String userId) async {
+    final headers = await _authService.getAuthHeaders();
+    final uri = Uri.parse('${AppConstants.baseUrl}/users/$userId');
+
+    try {
+      final response = await http.delete(uri, headers: headers);
+      return response.statusCode >= 200 && response.statusCode < 300;
+    } catch (e) {
+      print('Error deleting user: $e');
       return false;
     }
   }
