@@ -14,6 +14,7 @@ import 'services/auth_service.dart';
 import 'utils/role_permissions.dart';
 
 import 'services/settings_service.dart';
+import 'services/dashboard_service.dart';
 
 class HomePage extends StatefulWidget {
   final ThemeService? themeService;
@@ -277,7 +278,22 @@ class _DashboardScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
 
+                  // Statistics Section (OWNER and ADMIN only)
+                  if (user != null &&
+                      (user.role == 'OWNER' || user.role == 'ADMIN')) ...[
+                    Text(
+                      'Overview',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 12),
+                    _StatisticsSection(),
+                    const SizedBox(height: 24),
+                  ],
+
                   // User Info Card
+
                   if (user != null) ...[
                     Text(
                       'Account Information',
@@ -494,6 +510,147 @@ class _DashboardScreen extends StatelessWidget {
       default:
         return Colors.grey;
     }
+  }
+}
+
+class _StatisticsSection extends StatelessWidget {
+  const _StatisticsSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final dashboardService = DashboardService();
+
+    return FutureBuilder<DashboardStats>(
+      future: dashboardService.getStatistics(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Card(
+            child: Padding(
+              padding: EdgeInsets.all(48.0),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          );
+        }
+
+        if (snapshot.hasError || !snapshot.hasData) {
+          return Card(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    size: 48,
+                    color: Colors.red.shade300,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Failed to load statistics',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey.shade600,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        final stats = snapshot.data!;
+
+        return GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 2,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 1.3,
+          children: [
+            _buildStatCard(
+              context,
+              icon: Icons.school,
+              label: 'Students',
+              count: stats.studentsCount,
+              color: Colors.blue,
+            ),
+            _buildStatCard(
+              context,
+              icon: Icons.person,
+              label: 'Teachers',
+              count: stats.teachersCount,
+              color: Colors.green,
+            ),
+            _buildStatCard(
+              context,
+              icon: Icons.family_restroom,
+              label: 'Parents',
+              count: stats.parentsCount,
+              color: Colors.orange,
+            ),
+            _buildStatCard(
+              context,
+              icon: Icons.class_,
+              label: 'Lesson Groups',
+              count: stats.lessonGroupsCount,
+              color: Colors.deepPurple,
+            ),
+            _buildStatCard(
+              context,
+              icon: Icons.book,
+              label: 'Courses',
+              count: stats.coursesCount,
+              color: Colors.indigo,
+            ),
+            _buildStatCard(
+              context,
+              icon: Icons.meeting_room,
+              label: 'Rooms',
+              count: stats.roomsCount,
+              color: Colors.teal,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildStatCard(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required int count,
+    required Color color,
+  }) {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 32, color: color),
+            const SizedBox(height: 8),
+            Text(
+              count.toString(),
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.grey.shade600,
+                  ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
