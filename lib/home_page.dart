@@ -628,43 +628,83 @@ class _SettingsScreen extends StatelessWidget {
                         themeService?.toggleTheme(value);
                       },
                     ),
-                    onTap: () async {
-                      final confirm = await showDialog<bool>(
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            
+            // Info section
+            Card(
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.info_outline),
+                    title: const Text('About'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      showAboutDialog(
                         context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Logout'),
-                          content:
-                              const Text('Are you sure you want to logout?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(false),
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(true),
-                              child: const Text('Logout'),
-                            ),
-                          ],
-                        ),
+                        applicationName: 'Edu Markaz',
+                        applicationVersion: '1.0.0',
                       );
-
-                      if (confirm == true) {
-                        await authService.logout();
-                        if (context.mounted) {
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                                builder: (_) => const LoginPage()),
-                            (route) => false,
-                          );
-                        }
-                      }
                     },
                   ),
-                ),
-              ],
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.help_outline),
+                    title: const Text('Help & Support'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      // Handle help & support
+                    },
+                  ),
+                ],
+              ),
             ),
-          );
-        },
+            const SizedBox(height: 24),
+            
+            // Logout button
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.logout, color: Colors.red),
+                title: const Text(
+                  'Logout',
+                  style: TextStyle(color: Colors.red),
+                ),
+                onTap: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Logout'),
+                      content: const Text('Are you sure you want to logout?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: const Text('Logout'),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirm == true) {
+                    await authService.logout();
+                    if (context.mounted) {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (_) => const LoginPage()),
+                        (route) => false,
+                      );
+                    }
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
