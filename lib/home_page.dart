@@ -232,16 +232,27 @@ class _DashboardScreen extends StatelessWidget {
                               children: [
                                 Text(
                                   'Welcome Back!',
-                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(
                                         fontWeight: FontWeight.bold,
                                       ),
                                 ),
                                 const SizedBox(height: 4),
                                 if (user != null)
                                   Text(
-                                    user.name.isNotEmpty ? user.name : user.phoneNumber,
-                                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                          color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8),
+                                    user.name.isNotEmpty
+                                        ? user.name
+                                        : user.phoneNumber,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimaryContainer
+                                              .withOpacity(0.8),
                                         ),
                                   ),
                               ],
@@ -287,7 +298,9 @@ class _DashboardScreen extends StatelessWidget {
                               icon: Icons.verified,
                               label: 'Status',
                               value: user.status,
-                              valueColor: user.status == 'ACTIVE' ? Colors.green : Colors.grey,
+                              valueColor: user.status == 'ACTIVE'
+                                  ? Colors.green
+                                  : Colors.grey,
                             ),
                           ],
                         ),
@@ -297,51 +310,91 @@ class _DashboardScreen extends StatelessWidget {
                   ],
 
                   // Quick Actions
-                  Text(
-                    'Quick Actions',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 12),
-                  GridView.count(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 1.5,
-                    children: [
-                      _buildQuickActionCard(
-                        context,
-                        icon: Icons.school,
-                        label: 'Students',
-                        color: Colors.blue,
-                        onTap: () => onTabSelected(1),
-                      ),
-                      _buildQuickActionCard(
-                        context,
-                        icon: Icons.person,
-                        label: 'Teachers',
-                        color: Colors.green,
-                        onTap: () => onTabSelected(1),
-                      ),
-                      _buildQuickActionCard(
-                        context,
-                        icon: Icons.family_restroom,
-                        label: 'Parents',
-                        color: Colors.orange,
-                        onTap: () => onTabSelected(1),
-                      ),
-                      _buildQuickActionCard(
-                        context,
-                        icon: Icons.settings,
-                        label: 'Settings',
-                        color: Colors.purple,
-                        onTap: () => onTabSelected(3),
-                      ),
-                    ],
-                  ),
+                  if (user != null &&
+                      (RolePermissions.canAccessPeople(user.role) ||
+                          RolePermissions.canAccessAttendance(user.role))) ...[
+                    Text(
+                      'Quick Actions',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 12),
+                    GridView.count(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
+                      childAspectRatio: 1.5,
+                      children: [
+                        if (RolePermissions.canManageStudents(user.role))
+                          _buildQuickActionCard(
+                            context,
+                            icon: Icons.school,
+                            label: 'Students',
+                            color: Colors.blue,
+                            onTap: () => onTabSelected(1),
+                          ),
+                        if (RolePermissions.canManageTeachers(user.role))
+                          _buildQuickActionCard(
+                            context,
+                            icon: Icons.person,
+                            label: 'Teachers',
+                            color: Colors.green,
+                            onTap: () => onTabSelected(1),
+                          ),
+                        if (RolePermissions.canManageParents(user.role))
+                          _buildQuickActionCard(
+                            context,
+                            icon: Icons.family_restroom,
+                            label: 'Parents',
+                            color: Colors.orange,
+                            onTap: () => onTabSelected(1),
+                          ),
+                        if (RolePermissions.canManageAttendance(user.role))
+                          _buildQuickActionCard(
+                            context,
+                            icon: Icons.fact_check,
+                            label: 'Attendance',
+                            color: Colors.teal,
+                            onTap: () => onTabSelected(
+                                RolePermissions.canAccessPeople(user.role)
+                                    ? 2
+                                    : 1),
+                          ),
+                        if (RolePermissions.canAccessPayments(user.role))
+                          _buildQuickActionCard(
+                            context,
+                            icon: Icons.payment,
+                            label: 'Payments',
+                            color: Colors.indigo,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) =>
+                                        const CoursePaymentsScreen()),
+                              );
+                            },
+                          ),
+                        if (RolePermissions.canAccessLessonGroups(user.role))
+                          _buildQuickActionCard(
+                            context,
+                            icon: Icons.class_,
+                            label: 'Lesson Groups',
+                            color: Colors.deepPurple,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => const LessonGroupsScreen()),
+                              );
+                            },
+                          ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -442,189 +495,229 @@ class _SettingsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Settings'),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Settings',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 32),
-            Card(
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.book_outlined),
-                    title: const Text('Courses'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const CoursesScreen()),
-                      );
-                    },
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(Icons.class_outlined),
-                    title: const Text('Lesson Groups'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const LessonGroupsScreen()),
-                      );
-                    },
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(Icons.meeting_room_outlined),
-                    title: const Text('Rooms'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const RoomsScreen()),
-                      );
-                    },
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(Icons.fact_check_outlined),
-                    title: const Text('Attendance'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const AttendanceScreen()),
-                      );
-                    },
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(Icons.payment_outlined),
-                    title: const Text('Course Payments'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const CoursePaymentsScreen()),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            Card(
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.notifications_outlined),
-                    title: const Text('Notifications'),
-                    trailing: Switch(
-                      value: true,
-                      onChanged: (value) {
-                        // Handle notification settings
-                      },
-                    ),
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(Icons.language),
-                    title: const Text('Language'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      // Handle language settings
-                    },
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(Icons.dark_mode_outlined),
-                    title: const Text('Dark Mode'),
-                    trailing: Switch(
-                      value: false,
-                      onChanged: (value) {
-                        // Handle theme settings
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            Card(
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.info_outline),
-                    title: const Text('About'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      showAboutDialog(
-                        context: context,
-                        applicationName: 'Edu Markaz',
-                        applicationVersion: '1.0.0',
-                      );
-                    },
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(Icons.help_outline),
-                    title: const Text('Help & Support'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      // Handle help & support
-                    },
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            Card(
-              child: ListTile(
-                leading: const Icon(Icons.logout, color: Colors.red),
-                title: const Text(
-                  'Logout',
-                  style: TextStyle(color: Colors.red),
+      body: FutureBuilder<User?>(
+        future: authService.getUser(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final user = snapshot.data;
+          final userRole = user?.role ?? '';
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Settings',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
-                onTap: () async {
-                  final confirm = await showDialog<bool>(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Logout'),
-                      content: const Text('Are you sure you want to logout?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          child: const Text('Cancel'),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(true),
-                          child: const Text('Logout'),
-                        ),
+                const SizedBox(height: 32),
+
+                // Management section - Only for OWNER and ADMIN
+                if (RolePermissions.canAccessSettings(userRole)) ...[
+                  Card(
+                    child: Column(
+                      children: [
+                        if (RolePermissions.canAccessCourses(userRole)) ...[
+                          ListTile(
+                            leading: const Icon(Icons.book_outlined),
+                            title: const Text('Courses'),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => const CoursesScreen()),
+                              );
+                            },
+                          ),
+                          const Divider(height: 1),
+                        ],
+                        if (RolePermissions.canAccessLessonGroups(
+                            userRole)) ...[
+                          ListTile(
+                            leading: const Icon(Icons.class_outlined),
+                            title: const Text('Lesson Groups'),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => const LessonGroupsScreen()),
+                              );
+                            },
+                          ),
+                          const Divider(height: 1),
+                        ],
+                        if (RolePermissions.canAccessRooms(userRole)) ...[
+                          ListTile(
+                            leading: const Icon(Icons.meeting_room_outlined),
+                            title: const Text('Rooms'),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => const RoomsScreen()),
+                              );
+                            },
+                          ),
+                          const Divider(height: 1),
+                        ],
+                        if (RolePermissions.canManageAttendance(userRole)) ...[
+                          ListTile(
+                            leading: const Icon(Icons.fact_check_outlined),
+                            title: const Text('Attendance'),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => const AttendanceScreen()),
+                              );
+                            },
+                          ),
+                          const Divider(height: 1),
+                        ],
+                        if (RolePermissions.canAccessPayments(userRole)) ...[
+                          ListTile(
+                            leading: const Icon(Icons.payment_outlined),
+                            title: const Text('Course Payments'),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) =>
+                                        const CoursePaymentsScreen()),
+                              );
+                            },
+                          ),
+                        ],
                       ],
                     ),
-                  );
+                  ),
+                  const SizedBox(height: 24),
+                ],
+                // App Preferences - Available for everyone
+                Card(
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.notifications_outlined),
+                        title: const Text('Notifications'),
+                        trailing: Switch(
+                          value: true,
+                          onChanged: (value) {
+                            // Handle notification settings
+                          },
+                        ),
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: const Icon(Icons.language),
+                        title: const Text('Language'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () {
+                          // Handle language settings
+                        },
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: const Icon(Icons.dark_mode_outlined),
+                        title: const Text('Dark Mode'),
+                        trailing: Switch(
+                          value: false,
+                          onChanged: (value) {
+                            // Handle theme settings
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
 
-                  if (confirm == true) {
-                    await authService.logout();
-                    if (context.mounted) {
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (_) => const LoginPage()),
-                        (route) => false,
+                // Info section - Available for everyone
+                Card(
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.info_outline),
+                        title: const Text('About'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () {
+                          showAboutDialog(
+                            context: context,
+                            applicationName: 'Edu Markaz',
+                            applicationVersion: '1.0.0',
+                          );
+                        },
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: const Icon(Icons.help_outline),
+                        title: const Text('Help & Support'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () {
+                          // Handle help & support
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Logout - Available for everyone
+                Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.logout, color: Colors.red),
+                    title: const Text(
+                      'Logout',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                    onTap: () async {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Logout'),
+                          content:
+                              const Text('Are you sure you want to logout?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: const Text('Logout'),
+                            ),
+                          ],
+                        ),
                       );
-                    }
-                  }
-                },
-              ),
+
+                      if (confirm == true) {
+                        await authService.logout();
+                        if (context.mounted) {
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                                builder: (_) => const LoginPage()),
+                            (route) => false,
+                          );
+                        }
+                      }
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
