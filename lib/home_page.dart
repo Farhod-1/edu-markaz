@@ -1,3 +1,4 @@
+import 'package:edu_markaz/services/theme_service.dart';
 import 'package:flutter/material.dart';
 
 import 'login_page.dart';
@@ -12,8 +13,13 @@ import 'screens/course_payments_screen.dart';
 import 'services/auth_service.dart';
 import 'utils/role_permissions.dart';
 
+import 'services/settings_service.dart';
+
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final ThemeService? themeService;
+  final SettingsService? settingsService;
+
+  const HomePage({super.key, this.themeService, this.settingsService});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -55,6 +61,13 @@ class _HomePageState extends State<HomePage> {
           _currentIndex = index;
         });
       }),
+      const PeopleScreen(),
+      const AttendanceScreen(),
+      const ProfilePage(),
+      _SettingsScreen(
+        themeService: widget.themeService,
+        settingsService: widget.settingsService,
+      ),
     ];
 
     // Add People screen for OWNER and ADMIN
@@ -485,7 +498,10 @@ class _DashboardScreen extends StatelessWidget {
 }
 
 class _SettingsScreen extends StatelessWidget {
-  const _SettingsScreen();
+  final ThemeService? themeService;
+  final SettingsService? settingsService;
+
+  const _SettingsScreen({this.themeService, this.settingsService});
 
   @override
   Widget build(BuildContext context) {
@@ -495,191 +511,122 @@ class _SettingsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Settings'),
       ),
-      body: FutureBuilder<User?>(
-        future: authService.getUser(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final user = snapshot.data;
-          final userRole = user?.role ?? '';
-
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Settings',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                const SizedBox(height: 32),
-
-                // Management section - Only for OWNER and ADMIN
-                if (RolePermissions.canAccessSettings(userRole)) ...[
-                  Card(
-                    child: Column(
-                      children: [
-                        if (RolePermissions.canAccessCourses(userRole)) ...[
-                          ListTile(
-                            leading: const Icon(Icons.book_outlined),
-                            title: const Text('Courses'),
-                            trailing: const Icon(Icons.chevron_right),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => const CoursesScreen()),
-                              );
-                            },
-                          ),
-                          const Divider(height: 1),
-                        ],
-                        if (RolePermissions.canAccessLessonGroups(
-                            userRole)) ...[
-                          ListTile(
-                            leading: const Icon(Icons.class_outlined),
-                            title: const Text('Lesson Groups'),
-                            trailing: const Icon(Icons.chevron_right),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => const LessonGroupsScreen()),
-                              );
-                            },
-                          ),
-                          const Divider(height: 1),
-                        ],
-                        if (RolePermissions.canAccessRooms(userRole)) ...[
-                          ListTile(
-                            leading: const Icon(Icons.meeting_room_outlined),
-                            title: const Text('Rooms'),
-                            trailing: const Icon(Icons.chevron_right),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => const RoomsScreen()),
-                              );
-                            },
-                          ),
-                          const Divider(height: 1),
-                        ],
-                        if (RolePermissions.canManageAttendance(userRole)) ...[
-                          ListTile(
-                            leading: const Icon(Icons.fact_check_outlined),
-                            title: const Text('Attendance'),
-                            trailing: const Icon(Icons.chevron_right),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => const AttendanceScreen()),
-                              );
-                            },
-                          ),
-                          const Divider(height: 1),
-                        ],
-                        if (RolePermissions.canAccessPayments(userRole)) ...[
-                          ListTile(
-                            leading: const Icon(Icons.payment_outlined),
-                            title: const Text('Course Payments'),
-                            trailing: const Icon(Icons.chevron_right),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) =>
-                                        const CoursePaymentsScreen()),
-                              );
-                            },
-                          ),
-                        ],
-                      ],
-                    ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Settings',
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 32),
+            Card(
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.book_outlined),
+                    title: const Text('Courses'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const CoursesScreen()),
+                      );
+                    },
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.class_outlined),
+                    title: const Text('Lesson Groups'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const LessonGroupsScreen()),
+                      );
+                    },
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.meeting_room_outlined),
+                    title: const Text('Rooms'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const RoomsScreen()),
+                      );
+                    },
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.fact_check_outlined),
+                    title: const Text('Attendance'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const AttendanceScreen()),
+                      );
+                    },
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.payment_outlined),
+                    title: const Text('Course Payments'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const CoursePaymentsScreen()),
+                      );
+                    },
                   ),
                   const SizedBox(height: 24),
                 ],
-                // App Preferences - Available for everyone
-                Card(
-                  child: Column(
-                    children: [
-                      ListTile(
-                        leading: const Icon(Icons.notifications_outlined),
-                        title: const Text('Notifications'),
-                        trailing: Switch(
-                          value: true,
-                          onChanged: (value) {
-                            // Handle notification settings
-                          },
-                        ),
-                      ),
-                      const Divider(height: 1),
-                      ListTile(
-                        leading: const Icon(Icons.language),
-                        title: const Text('Language'),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          // Handle language settings
-                        },
-                      ),
-                      const Divider(height: 1),
-                      ListTile(
-                        leading: const Icon(Icons.dark_mode_outlined),
-                        title: const Text('Dark Mode'),
-                        trailing: Switch(
-                          value: false,
-                          onChanged: (value) {
-                            // Handle theme settings
-                          },
-                        ),
-                      ),
-                    ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            Card(
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.notifications_outlined),
+                    title: const Text('Notifications'),
+                    trailing: Switch(
+                      value: settingsService?.notificationsEnabled ?? true,
+                      onChanged: (value) {
+                        settingsService?.toggleNotifications(value);
+                      },
+                    ),
                   ),
-                ),
-                const SizedBox(height: 24),
-
-                // Info section - Available for everyone
-                Card(
-                  child: Column(
-                    children: [
-                      ListTile(
-                        leading: const Icon(Icons.info_outline),
-                        title: const Text('About'),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          showAboutDialog(
-                            context: context,
-                            applicationName: 'Edu Markaz',
-                            applicationVersion: '1.0.0',
-                          );
-                        },
-                      ),
-                      const Divider(height: 1),
-                      ListTile(
-                        leading: const Icon(Icons.help_outline),
-                        title: const Text('Help & Support'),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          // Handle help & support
-                        },
-                      ),
-                    ],
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.language),
+                    title: const Text('Language'),
+                    subtitle:
+                        Text(_getLanguageName(settingsService?.languageCode)),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      _showLanguageDialog(context, settingsService);
+                    },
                   ),
-                ),
-                const SizedBox(height: 24),
-
-                // Logout - Available for everyone
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.logout, color: Colors.red),
-                    title: const Text(
-                      'Logout',
-                      style: TextStyle(color: Colors.red),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.dark_mode_outlined),
+                    title: const Text('Dark Mode'),
+                    trailing: Switch(
+                      value: themeService?.isDarkMode ?? false,
+                      onChanged: (value) {
+                        themeService?.toggleTheme(value);
+                      },
                     ),
                     onTap: () async {
                       final confirm = await showDialog<bool>(
@@ -719,6 +666,62 @@ class _SettingsScreen extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+
+  String _getLanguageName(String? code) {
+    switch (code) {
+      case 'uz':
+        return "O'zbekcha";
+      case 'ru':
+        return 'Русский';
+      case 'en':
+      default:
+        return 'English';
+    }
+  }
+
+  void _showLanguageDialog(
+      BuildContext context, SettingsService? settingsService) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return SimpleDialog(
+          title: const Text('Select Language'),
+          children: [
+            SimpleDialogOption(
+              onPressed: () {
+                settingsService?.setLanguage('uz');
+                Navigator.pop(context);
+              },
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Text("O'zbekcha"),
+              ),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                settingsService?.setLanguage('ru');
+                Navigator.pop(context);
+              },
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Text('Русский'),
+              ),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                settingsService?.setLanguage('en');
+                Navigator.pop(context);
+              },
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Text('English'),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
