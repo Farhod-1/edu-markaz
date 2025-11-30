@@ -65,7 +65,9 @@ class DashboardService {
 
   Future<int> _fetchStudentsCount() async {
     try {
-      final students = await _userService.getStudents(limit: 1000);
+      // Use getUsers with uppercase STUDENT role
+      final students =
+          await _userService.getUsers(limit: 1000, role: 'STUDENT');
       return students.length;
     } catch (e) {
       print('Error fetching students count: $e');
@@ -75,7 +77,9 @@ class DashboardService {
 
   Future<int> _fetchTeachersCount() async {
     try {
-      final teachers = await _userService.getTeachers();
+      // Use getUsers with uppercase TEACHER role
+      final teachers =
+          await _userService.getUsers(limit: 1000, role: 'TEACHER');
       return teachers.length;
     } catch (e) {
       print('Error fetching teachers count: $e');
@@ -85,7 +89,8 @@ class DashboardService {
 
   Future<int> _fetchParentsCount() async {
     try {
-      final parents = await _userService.getParents();
+      // Use getUsers with uppercase PARENT role
+      final parents = await _userService.getUsers(limit: 1000, role: 'PARENT');
       return parents.length;
     } catch (e) {
       print('Error fetching parents count: $e');
