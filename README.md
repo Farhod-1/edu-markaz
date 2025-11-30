@@ -26,7 +26,7 @@
 | --- | --- | --- |
 | **FR-012** | Search & Filtering Lists | Screens listing students, courses, teachers or users must allow text-based filtering so users can quickly find a record. |
 | --- | --- | --- |
-| **FR-013** | Data Validation Enforcement | System must validate fields such as IDs, phone numbers, and required fields before saving to Firebase. Incorrect input shows inline error. |
+| **FR-013** | Data Validation Enforcement | System must validate fields such as IDs, phone numbers, and required fields before saving to Database. Incorrect input shows inline error. |
 | --- | --- | --- |
 
 Non-Functional Requirements
