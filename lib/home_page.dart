@@ -6,6 +6,7 @@ import 'profile_page.dart';
 import 'screens/courses_screen.dart';
 import 'screens/lesson_groups_screen.dart';
 import 'screens/people_screen.dart';
+import 'screens/rooms_screen.dart';
 import 'services/auth_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -378,6 +379,18 @@ class _SettingsScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const LessonGroupsScreen()),
+                      );
+                    },
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.meeting_room_outlined),
+                    title: const Text('Rooms'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const RoomsScreen()),
                       );
                     },
                   ),

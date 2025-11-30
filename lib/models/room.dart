@@ -4,6 +4,8 @@ class Room {
   final int capacity;
   final String? description;
   final String organizationId;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   Room({
     required this.id,
@@ -11,6 +13,8 @@ class Room {
     required this.capacity,
     this.description,
     required this.organizationId,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
   factory Room.fromJson(Map<String, dynamic> json) {
@@ -20,6 +24,12 @@ class Room {
       capacity: json['capacity'] as int? ?? 0,
       description: json['description'] as String?,
       organizationId: json['organizationId'] as String? ?? '',
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : DateTime.now(),
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'] as String)
+          : DateTime.now(),
     );
   }
 
@@ -30,6 +40,8 @@ class Room {
       'capacity': capacity,
       'description': description,
       'organizationId': organizationId,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
     };
   }
 }
