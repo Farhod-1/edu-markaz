@@ -6,6 +6,8 @@ import 'login_page.dart';
 import 'pages/onboarding_page.dart';
 import 'services/auth_service.dart';
 
+import 'services/theme_service.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -15,19 +17,36 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Edu Markaz',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      home: const AuthChecker(),
+    final themeService = ThemeService();
+
+    return ListenableBuilder(
+      listenable: themeService,
+      builder: (context, child) {
+        return MaterialApp(
+          title: 'Edu Markaz',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+            useMaterial3: true,
+          ),
+          darkTheme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.blue,
+              brightness: Brightness.dark,
+            ),
+            useMaterial3: true,
+          ),
+          themeMode: themeService.themeMode,
+          home: AuthChecker(themeService: themeService),
+        );
+      },
     );
   }
 }
 
 class AuthChecker extends StatefulWidget {
-  const AuthChecker({super.key});
+  final ThemeService? themeService;
+
+  const AuthChecker({super.key, this.themeService});
 
   @override
   State<AuthChecker> createState() => _AuthCheckerState();
@@ -73,6 +92,8 @@ class _AuthCheckerState extends State<AuthChecker> {
     }
 
     // Show home or login based on authentication
-    return _isAuthenticated ? const HomePage() : const LoginPage();
+    return _isAuthenticated
+        ? HomePage(themeService: widget.themeService)
+        : const LoginPage();
   }
 }

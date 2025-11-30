@@ -11,8 +11,12 @@ import 'screens/attendance_screen.dart';
 import 'screens/course_payments_screen.dart';
 import 'services/auth_service.dart';
 
+import 'services/theme_service.dart';
+
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final ThemeService? themeService;
+
+  const HomePage({super.key, this.themeService});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -33,7 +37,7 @@ class _HomePageState extends State<HomePage> {
       const PeopleScreen(),
       const AttendanceScreen(),
       const ProfilePage(),
-      const _SettingsScreen(),
+      _SettingsScreen(themeService: widget.themeService),
     ];
 
     return Scaffold(
@@ -142,16 +146,27 @@ class _DashboardScreen extends StatelessWidget {
                               children: [
                                 Text(
                                   'Welcome Back!',
-                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(
                                         fontWeight: FontWeight.bold,
                                       ),
                                 ),
                                 const SizedBox(height: 4),
                                 if (user != null)
                                   Text(
-                                    user.name.isNotEmpty ? user.name : user.phoneNumber,
-                                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                          color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8),
+                                    user.name.isNotEmpty
+                                        ? user.name
+                                        : user.phoneNumber,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimaryContainer
+                                              .withOpacity(0.8),
                                         ),
                                   ),
                               ],
@@ -197,7 +212,9 @@ class _DashboardScreen extends StatelessWidget {
                               icon: Icons.verified,
                               label: 'Status',
                               value: user.status,
-                              valueColor: user.status == 'ACTIVE' ? Colors.green : Colors.grey,
+                              valueColor: user.status == 'ACTIVE'
+                                  ? Colors.green
+                                  : Colors.grey,
                             ),
                           ],
                         ),
@@ -342,7 +359,9 @@ class _DashboardScreen extends StatelessWidget {
 }
 
 class _SettingsScreen extends StatelessWidget {
-  const _SettingsScreen();
+  final ThemeService? themeService;
+
+  const _SettingsScreen({this.themeService});
 
   @override
   Widget build(BuildContext context) {
@@ -374,7 +393,8 @@ class _SettingsScreen extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const CoursesScreen()),
+                        MaterialPageRoute(
+                            builder: (_) => const CoursesScreen()),
                       );
                     },
                   ),
@@ -386,7 +406,8 @@ class _SettingsScreen extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const LessonGroupsScreen()),
+                        MaterialPageRoute(
+                            builder: (_) => const LessonGroupsScreen()),
                       );
                     },
                   ),
@@ -410,7 +431,8 @@ class _SettingsScreen extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const AttendanceScreen()),
+                        MaterialPageRoute(
+                            builder: (_) => const AttendanceScreen()),
                       );
                     },
                   ),
@@ -422,7 +444,8 @@ class _SettingsScreen extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const CoursePaymentsScreen()),
+                        MaterialPageRoute(
+                            builder: (_) => const CoursePaymentsScreen()),
                       );
                     },
                   ),
@@ -457,9 +480,9 @@ class _SettingsScreen extends StatelessWidget {
                     leading: const Icon(Icons.dark_mode_outlined),
                     title: const Text('Dark Mode'),
                     trailing: Switch(
-                      value: false,
+                      value: themeService?.isDarkMode ?? false,
                       onChanged: (value) {
-                        // Handle theme settings
+                        themeService?.toggleTheme(value);
                       },
                     ),
                   ),
