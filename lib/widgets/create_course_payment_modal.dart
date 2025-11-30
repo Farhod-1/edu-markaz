@@ -18,7 +18,8 @@ class CreateCoursePaymentModal extends StatefulWidget {
   });
 
   @override
-  State<CreateCoursePaymentModal> createState() => _CreateCoursePaymentModalState();
+  State<CreateCoursePaymentModal> createState() =>
+      _CreateCoursePaymentModalState();
 }
 
 class _CreateCoursePaymentModalState extends State<CreateCoursePaymentModal> {
@@ -31,7 +32,7 @@ class _CreateCoursePaymentModalState extends State<CreateCoursePaymentModal> {
   final _amountController = TextEditingController();
   String _selectedMonth = DateFormat('yyyy-MM').format(DateTime.now());
   final _notesController = TextEditingController();
-  
+
   List<User> _students = [];
   bool _isLoading = false;
   bool _loadingStudents = false;
@@ -41,7 +42,7 @@ class _CreateCoursePaymentModalState extends State<CreateCoursePaymentModal> {
   void initState() {
     super.initState();
     _loadStudents();
-    
+
     if (widget.paymentToEdit != null) {
       _selectedStudentId = widget.paymentToEdit!.studentId;
       _selectedLessonGroupId = widget.paymentToEdit!.lessonGroupId;
@@ -54,12 +55,16 @@ class _CreateCoursePaymentModalState extends State<CreateCoursePaymentModal> {
   Future<void> _loadStudents() async {
     setState(() => _loadingStudents = true);
     try {
-      final students = await _userService.getUsers(role: 'STUDENT', limit: 1000);
+      final students = await _userService.getUsers(role: 'STUDENT', limit: 100);
+      print('Loaded ${students.length} students');
+      for (var student in students) {
+        print('Student: ${student.name} - ${student.id}');
+      }
       setState(() {
         _students = students;
       });
     } catch (e) {
-      // Handle error silently
+      print('Error loading students: $e');
     } finally {
       setState(() => _loadingStudents = false);
     }
@@ -73,17 +78,17 @@ class _CreateCoursePaymentModalState extends State<CreateCoursePaymentModal> {
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-    
     if (_selectedStudentId == null) {
       setState(() => _error = 'Please select a student');
       return;
     }
-    
+
     if (_selectedLessonGroupId == null) {
       setState(() => _error = 'Please select a lesson group');
       return;
     }
+
+    if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       _isLoading = true;
@@ -96,12 +101,14 @@ class _CreateCoursePaymentModalState extends State<CreateCoursePaymentModal> {
         'lessonGroupId': _selectedLessonGroupId,
         'amount': int.tryParse(_amountController.text.trim()) ?? 0,
         'month': _selectedMonth,
-        if (_notesController.text.trim().isNotEmpty) 'notes': _notesController.text.trim(),
+        if (_notesController.text.trim().isNotEmpty)
+          'notes': _notesController.text.trim(),
       };
 
       bool success;
       if (widget.paymentToEdit != null) {
-        success = await _paymentService.updatePayment(widget.paymentToEdit!.id, paymentData);
+        success = await _paymentService.updatePayment(
+            widget.paymentToEdit!.id, paymentData);
       } else {
         success = await _paymentService.createPayment(paymentData);
       }
@@ -118,7 +125,8 @@ class _CreateCoursePaymentModalState extends State<CreateCoursePaymentModal> {
         );
       } else {
         setState(() {
-          _error = 'Failed to ${widget.paymentToEdit != null ? "update" : "create"} payment';
+          _error =
+              'Failed to ${widget.paymentToEdit != null ? "update" : "create"} payment';
         });
       }
     } catch (e) {
@@ -132,6 +140,108 @@ class _CreateCoursePaymentModalState extends State<CreateCoursePaymentModal> {
         });
       }
     }
+  }
+
+  void _showStudentSelector() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (context, scrollController) => Column(
+          children: [
+            // Header
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+              ),
+              child: Row(
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'Select Student',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+            ),
+            // Student List
+            Expanded(
+              child: _loadingStudents
+                  ? const Center(child: CircularProgressIndicator())
+                  : _students.isEmpty
+                      ? const Center(
+                          child: Text(
+                            'No students found',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        )
+                      : ListView.builder(
+                          controller: scrollController,
+                          itemCount: _students.length,
+                          padding: const EdgeInsets.all(8),
+                          itemBuilder: (context, index) {
+                            final student = _students[index];
+                            final isSelected = _selectedStudentId == student.id;
+                            return Card(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              elevation: isSelected ? 4 : 1,
+                              color: isSelected ? Colors.blue.shade50 : null,
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: isSelected
+                                      ? Colors.blue
+                                      : Colors.grey.shade300,
+                                  child: Icon(
+                                    Icons.person,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : Colors.grey.shade600,
+                                  ),
+                                ),
+                                title: Text(
+                                  student.name,
+                                  style: TextStyle(
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                                subtitle: Text(student.phoneNumber),
+                                trailing: isSelected
+                                    ? const Icon(Icons.check_circle,
+                                        color: Colors.blue)
+                                    : null,
+                                onTap: () {
+                                  setState(() {
+                                    _selectedStudentId = student.id;
+                                    _error = '';
+                                  });
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -154,7 +264,9 @@ class _CreateCoursePaymentModalState extends State<CreateCoursePaymentModal> {
                     children: [
                       Expanded(
                         child: Text(
-                          widget.paymentToEdit != null ? 'Edit Payment' : 'Create Course Payment',
+                          widget.paymentToEdit != null
+                              ? 'Edit Payment'
+                              : 'Create Course Payment',
                           style: const TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -182,12 +294,14 @@ class _CreateCoursePaymentModalState extends State<CreateCoursePaymentModal> {
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.error_outline, color: Colors.red.shade700, size: 20),
+                          Icon(Icons.error_outline,
+                              color: Colors.red.shade700, size: 20),
                           const SizedBox(width: 8),
                           Flexible(
                             child: Text(
                               _error,
-                              style: TextStyle(color: Colors.red.shade700, fontSize: 13),
+                              style: TextStyle(
+                                  color: Colors.red.shade700, fontSize: 13),
                             ),
                           ),
                         ],
@@ -196,31 +310,52 @@ class _CreateCoursePaymentModalState extends State<CreateCoursePaymentModal> {
 
                   // Student Selector
                   _buildLabel('Student'),
-                  _loadingStudents
-                      ? const LinearProgressIndicator()
-                      : DropdownButtonFormField<String>(
-                          value: _selectedStudentId,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                            prefixIcon: Icon(Icons.person),
+                  GestureDetector(
+                    onTap: widget.paymentToEdit != null
+                        ? null
+                        : () => _showStudentSelector(),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade400),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.person, color: Colors.grey),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              _selectedStudentId != null
+                                  ? _students
+                                      .firstWhere(
+                                          (s) => s.id == _selectedStudentId)
+                                      .name
+                                  : 'Select student',
+                              style: TextStyle(
+                                color: _selectedStudentId != null
+                                    ? Colors.black
+                                    : Colors.grey.shade600,
+                                fontSize: 16,
+                              ),
+                            ),
                           ),
-                          hint: const Text('Select student'),
-                          items: _students.map((student) {
-                            return DropdownMenuItem(
-                              value: student.id,
-                              child: Text('${student.name} (${student.phoneNumber})'),
-                            );
-                          }).toList(),
-                          onChanged: widget.paymentToEdit != null
-                              ? null
-                              : (value) {
-                                  setState(() {
-                                    _selectedStudentId = value;
-                                  });
-                                },
-                          validator: (v) => v == null ? 'Please select a student' : null,
-                        ),
+                          Icon(Icons.arrow_drop_down,
+                              color: Colors.grey.shade600),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (_selectedStudentId == null && _error.contains('student'))
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8, left: 12),
+                      child: Text(
+                        'Please select a student',
+                        style:
+                            TextStyle(color: Colors.red.shade700, fontSize: 12),
+                      ),
+                    ),
                   const SizedBox(height: 20),
 
                   // Lesson Group Selector
@@ -229,7 +364,8 @@ class _CreateCoursePaymentModalState extends State<CreateCoursePaymentModal> {
                     value: _selectedLessonGroupId,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                       prefixIcon: Icon(Icons.class_),
                     ),
                     hint: const Text('Select lesson group'),
@@ -244,7 +380,8 @@ class _CreateCoursePaymentModalState extends State<CreateCoursePaymentModal> {
                         _selectedLessonGroupId = value;
                       });
                     },
-                    validator: (v) => v == null ? 'Please select a lesson group' : null,
+                    validator: (v) =>
+                        v == null ? 'Please select a lesson group' : null,
                   ),
                   const SizedBox(height: 20),
 
@@ -261,15 +398,20 @@ class _CreateCoursePaymentModalState extends State<CreateCoursePaymentModal> {
                               decoration: const InputDecoration(
                                 hintText: '0',
                                 border: OutlineInputBorder(),
-                                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 14),
                                 prefixIcon: Icon(Icons.attach_money),
                                 suffixText: 'UZS',
                               ),
                               keyboardType: TextInputType.number,
-                              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
                               validator: (v) {
-                                if (v == null || v.isEmpty) return 'Amount is required';
-                                if (int.tryParse(v) == null) return 'Invalid amount';
+                                if (v == null || v.isEmpty)
+                                  return 'Amount is required';
+                                if (int.tryParse(v) == null)
+                                  return 'Invalid amount';
                                 return null;
                               },
                             ),
@@ -285,21 +427,26 @@ class _CreateCoursePaymentModalState extends State<CreateCoursePaymentModal> {
                             TextField(
                               decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
-                                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 14),
                                 suffixIcon: Icon(Icons.calendar_month),
                               ),
-                              controller: TextEditingController(text: _selectedMonth),
+                              controller:
+                                  TextEditingController(text: _selectedMonth),
                               readOnly: true,
                               onTap: () async {
                                 final date = await showDatePicker(
                                   context: context,
-                                  initialDate: DateFormat('yyyy-MM').parse(_selectedMonth),
+                                  initialDate: DateFormat('yyyy-MM')
+                                      .parse(_selectedMonth),
                                   firstDate: DateTime(2020),
-                                  lastDate: DateTime.now().add(const Duration(days: 365)),
+                                  lastDate: DateTime.now()
+                                      .add(const Duration(days: 365)),
                                 );
                                 if (date != null) {
                                   setState(() {
-                                    _selectedMonth = DateFormat('yyyy-MM').format(date);
+                                    _selectedMonth =
+                                        DateFormat('yyyy-MM').format(date);
                                   });
                                 }
                               },
@@ -318,7 +465,8 @@ class _CreateCoursePaymentModalState extends State<CreateCoursePaymentModal> {
                     decoration: const InputDecoration(
                       hintText: 'Add payment notes...',
                       border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     ),
                     maxLines: 3,
                   ),
@@ -329,9 +477,11 @@ class _CreateCoursePaymentModalState extends State<CreateCoursePaymentModal> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       OutlinedButton(
-                        onPressed: _isLoading ? null : () => Navigator.pop(context),
+                        onPressed:
+                            _isLoading ? null : () => Navigator.pop(context),
                         style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -342,7 +492,8 @@ class _CreateCoursePaymentModalState extends State<CreateCoursePaymentModal> {
                       ElevatedButton(
                         onPressed: _isLoading ? null : _submit,
                         style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 14),
                           backgroundColor: Colors.black,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
@@ -355,10 +506,13 @@ class _CreateCoursePaymentModalState extends State<CreateCoursePaymentModal> {
                                 height: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white),
                                 ),
                               )
-                            : Text(widget.paymentToEdit != null ? 'Update' : 'Create Payment'),
+                            : Text(widget.paymentToEdit != null
+                                ? 'Update'
+                                : 'Create Payment'),
                       ),
                     ],
                   ),
