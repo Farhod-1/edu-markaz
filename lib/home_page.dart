@@ -429,7 +429,8 @@ class _DashboardScreen extends StatelessWidget {
                             icon: Icons.fact_check,
                             label: 'Attendance',
                             color: Colors.teal,
-                            onTap: () => onTabSelected(_getTabIndex('attendance')),
+                            onTap: () =>
+                                onTabSelected(_getTabIndex('attendance')),
                           ),
                         if (RolePermissions.canAccessPayments(user.role))
                           _buildQuickActionCard(
@@ -661,9 +662,11 @@ class _SettingsScreenState extends State<_SettingsScreen> {
                     leading: const Icon(Icons.notifications_outlined),
                     title: const Text('Notifications'),
                     trailing: Switch(
-                      value: widget.settingsService?.notificationsEnabled ?? true,
+                      value:
+                          widget.settingsService?.notificationsEnabled ?? true,
                       onChanged: (value) async {
-                        await widget.settingsService?.toggleNotifications(value);
+                        await widget.settingsService
+                            ?.toggleNotifications(value);
                         setState(() {});
                       },
                     ),
@@ -672,8 +675,8 @@ class _SettingsScreenState extends State<_SettingsScreen> {
                   ListTile(
                     leading: const Icon(Icons.language),
                     title: const Text('Language'),
-                    subtitle:
-                        Text(_getLanguageName(widget.settingsService?.languageCode)),
+                    subtitle: Text(
+                        _getLanguageName(widget.settingsService?.languageCode)),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       _showLanguageDialog(context, widget.settingsService);

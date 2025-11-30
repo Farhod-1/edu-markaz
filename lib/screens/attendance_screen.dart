@@ -19,13 +19,13 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   final AttendanceService _attendanceService = AttendanceService();
   final LessonGroupService _lessonGroupService = LessonGroupService();
   final AuthService _authService = AuthService();
-  
+
   List<AttendanceRecord> _attendanceRecords = [];
   List<LessonGroup> _lessonGroups = [];
   bool _isLoading = false;
   String _error = '';
   User? _currentUser;
-  
+
   // Filters
   String? _selectedLessonGroupId;
   int _selectedMonth = DateTime.now().month;
@@ -62,7 +62,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 
   Future<void> _fetchAttendance() async {
     if (_isLoading) return;
-    
+
     setState(() {
       _isLoading = true;
       _error = '';
@@ -137,7 +137,8 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Attendance'),
-        content: Text('Delete attendance for ${record.lessonGroupName} on ${DateFormat('MMM d, y').format(record.date)}?'),
+        content: Text(
+            'Delete attendance for ${record.lessonGroupName} on ${DateFormat('MMM d, y').format(record.date)}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -185,8 +186,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     });
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -228,17 +227,20 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Lesson Group', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text('Lesson Group',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: _selectedLessonGroupId,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
                 hint: const Text('All Groups'),
                 items: [
-                  const DropdownMenuItem(value: null, child: Text('All Groups')),
+                  const DropdownMenuItem(
+                      value: null, child: Text('All Groups')),
                   ..._lessonGroups.map((group) => DropdownMenuItem(
                         value: group.id,
                         child: Text(group.name),
@@ -251,17 +253,20 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              const Text('Month', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text('Month',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               DropdownButtonFormField<int>(
                 value: _selectedMonth,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
                 items: List.generate(12, (index) {
                   final month = index + 1;
-                  final monthName = DateFormat.MMMM().format(DateTime(2000, month));
+                  final monthName =
+                      DateFormat.MMMM().format(DateTime(2000, month));
                   return DropdownMenuItem(
                     value: month,
                     child: Text(monthName),
@@ -280,7 +285,8 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 value: _selectedYear,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
                 items: List.generate(10, (index) {
                   final year = DateTime.now().year - index;
@@ -346,7 +352,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   Widget _buildEmptyState() {
     final isTeacher = _currentUser?.role == 'TEACHER';
     final hasNoGroups = isTeacher && _lessonGroups.isEmpty;
-    
+
     return ListView(
       children: [
         const SizedBox(height: 100),
@@ -354,10 +360,11 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.fact_check_outlined, size: 80, color: Colors.grey.shade300),
+              Icon(Icons.fact_check_outlined,
+                  size: 80, color: Colors.grey.shade300),
               const SizedBox(height: 24),
               Text(
-                hasNoGroups 
+                hasNoGroups
                     ? 'No lesson groups assigned'
                     : 'No attendance records found',
                 style: TextStyle(
@@ -417,7 +424,8 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: () => _showCreateAttendanceDialog(record),
@@ -434,7 +442,8 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           color: Colors.blue.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(Icons.fact_check, color: Colors.blue, size: 24),
+                        child: const Icon(Icons.fact_check,
+                            color: Colors.blue, size: 24),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -488,7 +497,8 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                               children: [
                                 Icon(Icons.delete, color: Colors.red, size: 20),
                                 SizedBox(width: 12),
-                                Text('Delete', style: TextStyle(color: Colors.red)),
+                                Text('Delete',
+                                    style: TextStyle(color: Colors.red)),
                               ],
                             ),
                           ),
@@ -530,7 +540,8 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        Icon(Icons.person, size: 16, color: Colors.grey.shade600),
+                        Icon(Icons.person,
+                            size: 16, color: Colors.grey.shade600),
                         const SizedBox(width: 4),
                         Text(
                           record.teacherName,
