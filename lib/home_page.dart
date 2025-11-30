@@ -7,6 +7,7 @@ import 'screens/courses_screen.dart';
 import 'screens/lesson_groups_screen.dart';
 import 'screens/people_screen.dart';
 import 'screens/rooms_screen.dart';
+import 'screens/attendance_screen.dart';
 import 'services/auth_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -29,6 +30,7 @@ class _HomePageState extends State<HomePage> {
         });
       }),
       const PeopleScreen(),
+      const AttendanceScreen(),
       const ProfilePage(),
       const _SettingsScreen(),
     ];
@@ -56,6 +58,11 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.people_outline),
             selectedIcon: Icon(Icons.people),
             label: 'People',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.fact_check_outlined),
+            selectedIcon: Icon(Icons.fact_check),
+            label: 'Attendance',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),
@@ -391,6 +398,18 @@ class _SettingsScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const RoomsScreen()),
+                      );
+                    },
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.fact_check_outlined),
+                    title: const Text('Attendance'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AttendanceScreen()),
                       );
                     },
                   ),
