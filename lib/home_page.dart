@@ -10,6 +10,7 @@ import 'screens/rooms_screen.dart';
 import 'screens/attendance_screen.dart';
 import 'screens/course_payments_screen.dart';
 import 'services/auth_service.dart';
+import 'utils/role_permissions.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,20 +22,135 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   final authService = AuthService();
+  User? _currentUser;
 
   @override
-  Widget build(BuildContext context) {
-    final screens = [
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
+
+  Future<void> _loadUser() async {
+    final user = await authService.getUser();
+    setState(() {
+      _currentUser = user;
+    });
+  }
+
+  List<Widget> _getScreensForRole(String? role) {
+    if (role == null) {
+      return [
+        _DashboardScreen(onTabSelected: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        }),
+        const ProfilePage(),
+      ];
+    }
+
+    final screens = <Widget>[
       _DashboardScreen(onTabSelected: (index) {
         setState(() {
           _currentIndex = index;
         });
       }),
-      const PeopleScreen(),
-      const AttendanceScreen(),
-      const ProfilePage(),
-      const _SettingsScreen(),
     ];
+
+    // Add People screen for OWNER and ADMIN
+    if (RolePermissions.canAccessPeople(role)) {
+      screens.add(const PeopleScreen());
+    }
+
+    // Add Attendance screen for OWNER, ADMIN, and TEACHER
+    if (RolePermissions.canAccessAttendance(role)) {
+      screens.add(const AttendanceScreen());
+    }
+
+    // Profile is available for everyone
+    screens.add(const ProfilePage());
+
+    // Settings only for OWNER and ADMIN
+    if (RolePermissions.canAccessSettings(role)) {
+      screens.add(const _SettingsScreen());
+    }
+
+    return screens;
+  }
+
+  List<NavigationDestination> _getNavigationDestinationsForRole(String? role) {
+    if (role == null) {
+      return const [
+        NavigationDestination(
+          icon: Icon(Icons.home_outlined),
+          selectedIcon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.person_outline),
+          selectedIcon: Icon(Icons.person),
+          label: 'Profile',
+        ),
+      ];
+    }
+
+    final destinations = <NavigationDestination>[
+      const NavigationDestination(
+        icon: Icon(Icons.home_outlined),
+        selectedIcon: Icon(Icons.home),
+        label: 'Home',
+      ),
+    ];
+
+    // Add People tab for OWNER and ADMIN
+    if (RolePermissions.canAccessPeople(role)) {
+      destinations.add(
+        const NavigationDestination(
+          icon: Icon(Icons.people_outline),
+          selectedIcon: Icon(Icons.people),
+          label: 'People',
+        ),
+      );
+    }
+
+    // Add Attendance tab for OWNER, ADMIN, and TEACHER
+    if (RolePermissions.canAccessAttendance(role)) {
+      destinations.add(
+        const NavigationDestination(
+          icon: Icon(Icons.fact_check_outlined),
+          selectedIcon: Icon(Icons.fact_check),
+          label: 'Attendance',
+        ),
+      );
+    }
+
+    // Profile is available for everyone
+    destinations.add(
+      const NavigationDestination(
+        icon: Icon(Icons.person_outline),
+        selectedIcon: Icon(Icons.person),
+        label: 'Profile',
+      ),
+    );
+
+    // Settings only for OWNER and ADMIN
+    if (RolePermissions.canAccessSettings(role)) {
+      destinations.add(
+        const NavigationDestination(
+          icon: Icon(Icons.settings_outlined),
+          selectedIcon: Icon(Icons.settings),
+          label: 'Settings',
+        ),
+      );
+    }
+
+    return destinations;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screens = _getScreensForRole(_currentUser?.role);
+    final destinations = _getNavigationDestinationsForRole(_currentUser?.role);
 
     return Scaffold(
       body: IndexedStack(
@@ -49,33 +165,7 @@ class _HomePageState extends State<HomePage> {
           });
         },
         elevation: 8,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.people_outline),
-            selectedIcon: Icon(Icons.people),
-            label: 'People',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.fact_check_outlined),
-            selectedIcon: Icon(Icons.fact_check),
-            label: 'Attendance',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
+        destinations: destinations,
       ),
     );
   }

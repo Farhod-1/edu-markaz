@@ -106,16 +106,22 @@ class UserService {
     final uri = Uri.parse(url);
 
     try {
+      print('Fetching users from: $url');
       final response = await http.get(uri, headers: headers);
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data is Map<String, dynamic> && data.containsKey('users')) {
           final List<dynamic> usersJson = data['users'];
+          print('Found ${usersJson.length} users in response');
           return usersJson.map((json) => User.fromJson(json)).toList();
         } else if (data is List) {
+          print('Found ${data.length} users in response (array format)');
           return data.map((json) => User.fromJson(json)).toList();
         }
+        print('Response format not recognized');
       }
       return [];
     } catch (e) {
@@ -125,7 +131,7 @@ class UserService {
   }
 
   Future<List<User>> getStudents({int page = 1, int limit = 50}) async {
-    return getUsers(page: page, limit: limit, role: 'STUDENT');
+    return getUsers(page: page, limit: limit, role: 'student');
   }
 
   Future<bool> createUser(Map<String, dynamic> userData) async {
