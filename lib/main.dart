@@ -8,6 +8,8 @@ import 'services/auth_service.dart';
 
 import 'services/theme_service.dart';
 
+import 'services/settings_service.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -18,9 +20,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeService = ThemeService();
+    final settingsService = SettingsService();
 
     return ListenableBuilder(
-      listenable: themeService,
+      listenable: Listenable.merge([themeService, settingsService]),
       builder: (context, child) {
         return MaterialApp(
           title: 'Edu Markaz',
@@ -36,7 +39,10 @@ class MyApp extends StatelessWidget {
             useMaterial3: true,
           ),
           themeMode: themeService.themeMode,
-          home: AuthChecker(themeService: themeService),
+          home: AuthChecker(
+            themeService: themeService,
+            settingsService: settingsService,
+          ),
         );
       },
     );
@@ -45,8 +51,9 @@ class MyApp extends StatelessWidget {
 
 class AuthChecker extends StatefulWidget {
   final ThemeService? themeService;
+  final SettingsService? settingsService;
 
-  const AuthChecker({super.key, this.themeService});
+  const AuthChecker({super.key, this.themeService, this.settingsService});
 
   @override
   State<AuthChecker> createState() => _AuthCheckerState();
@@ -93,7 +100,10 @@ class _AuthCheckerState extends State<AuthChecker> {
 
     // Show home or login based on authentication
     return _isAuthenticated
-        ? HomePage(themeService: widget.themeService)
+        ? HomePage(
+            themeService: widget.themeService,
+            settingsService: widget.settingsService,
+          )
         : const LoginPage();
   }
 }

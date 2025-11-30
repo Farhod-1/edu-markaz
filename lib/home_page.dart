@@ -11,12 +11,13 @@ import 'screens/attendance_screen.dart';
 import 'screens/course_payments_screen.dart';
 import 'services/auth_service.dart';
 
-import 'services/theme_service.dart';
+import 'services/settings_service.dart';
 
 class HomePage extends StatefulWidget {
   final ThemeService? themeService;
+  final SettingsService? settingsService;
 
-  const HomePage({super.key, this.themeService});
+  const HomePage({super.key, this.themeService, this.settingsService});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -37,7 +38,10 @@ class _HomePageState extends State<HomePage> {
       const PeopleScreen(),
       const AttendanceScreen(),
       const ProfilePage(),
-      _SettingsScreen(themeService: widget.themeService),
+      _SettingsScreen(
+        themeService: widget.themeService,
+        settingsService: widget.settingsService,
+      ),
     ];
 
     return Scaffold(
@@ -360,8 +364,9 @@ class _DashboardScreen extends StatelessWidget {
 
 class _SettingsScreen extends StatelessWidget {
   final ThemeService? themeService;
+  final SettingsService? settingsService;
 
-  const _SettingsScreen({this.themeService});
+  const _SettingsScreen({this.themeService, this.settingsService});
 
   @override
   Widget build(BuildContext context) {
@@ -460,9 +465,9 @@ class _SettingsScreen extends StatelessWidget {
                     leading: const Icon(Icons.notifications_outlined),
                     title: const Text('Notifications'),
                     trailing: Switch(
-                      value: true,
+                      value: settingsService?.notificationsEnabled ?? true,
                       onChanged: (value) {
-                        // Handle notification settings
+                        settingsService?.toggleNotifications(value);
                       },
                     ),
                   ),
@@ -470,9 +475,11 @@ class _SettingsScreen extends StatelessWidget {
                   ListTile(
                     leading: const Icon(Icons.language),
                     title: const Text('Language'),
+                    subtitle:
+                        Text(_getLanguageName(settingsService?.languageCode)),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
-                      // Handle language settings
+                      _showLanguageDialog(context, settingsService);
                     },
                   ),
                   const Divider(height: 1),
@@ -559,6 +566,62 @@ class _SettingsScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  String _getLanguageName(String? code) {
+    switch (code) {
+      case 'uz':
+        return "O'zbekcha";
+      case 'ru':
+        return 'Русский';
+      case 'en':
+      default:
+        return 'English';
+    }
+  }
+
+  void _showLanguageDialog(
+      BuildContext context, SettingsService? settingsService) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return SimpleDialog(
+          title: const Text('Select Language'),
+          children: [
+            SimpleDialogOption(
+              onPressed: () {
+                settingsService?.setLanguage('uz');
+                Navigator.pop(context);
+              },
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Text("O'zbekcha"),
+              ),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                settingsService?.setLanguage('ru');
+                Navigator.pop(context);
+              },
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Text('Русский'),
+              ),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                settingsService?.setLanguage('en');
+                Navigator.pop(context);
+              },
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Text('English'),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
