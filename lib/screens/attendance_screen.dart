@@ -197,6 +197,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                     : _buildAttendanceList(),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'attendance_fab',
         onPressed: () => _showCreateAttendanceDialog(),
         icon: const Icon(Icons.add),
         label: const Text('Take Attendance'),

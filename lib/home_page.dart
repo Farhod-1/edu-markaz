@@ -8,6 +8,7 @@ import 'screens/lesson_groups_screen.dart';
 import 'screens/people_screen.dart';
 import 'screens/rooms_screen.dart';
 import 'screens/attendance_screen.dart';
+import 'screens/course_payments_screen.dart';
 import 'services/auth_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -410,6 +411,18 @@ class _SettingsScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const AttendanceScreen()),
+                      );
+                    },
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.payment_outlined),
+                    title: const Text('Course Payments'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const CoursePaymentsScreen()),
                       );
                     },
                   ),
