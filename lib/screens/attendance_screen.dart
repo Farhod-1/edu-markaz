@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/attendance_record.dart';
 import '../models/lesson_group.dart';
+import '../models/user.dart';
 import '../services/attendance_service.dart';
 import '../services/lesson_group_service.dart';
+import '../services/auth_service.dart';
 import '../widgets/create_attendance_modal.dart';
 
 class AttendanceScreen extends StatefulWidget {
@@ -16,11 +18,13 @@ class AttendanceScreen extends StatefulWidget {
 class _AttendanceScreenState extends State<AttendanceScreen> {
   final AttendanceService _attendanceService = AttendanceService();
   final LessonGroupService _lessonGroupService = LessonGroupService();
+  final AuthService _authService = AuthService();
   
   List<AttendanceRecord> _attendanceRecords = [];
   List<LessonGroup> _lessonGroups = [];
   bool _isLoading = false;
   String _error = '';
+  User? _currentUser;
   
   // Filters
   String? _selectedLessonGroupId;
@@ -32,13 +36,22 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   @override
   void initState() {
     super.initState();
-    _loadLessonGroups();
-    _fetchAttendance();
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    _currentUser = await _authService.getUser();
+    await _loadLessonGroups();
+    await _fetchAttendance();
   }
 
   Future<void> _loadLessonGroups() async {
     try {
-      final groups = await _lessonGroupService.getLessonGroups(limit: 100);
+      // If teacher, load only their lesson groups
+      final groups = await _lessonGroupService.getLessonGroups(
+        limit: 100,
+        teacherId: _currentUser?.role == 'TEACHER' ? _currentUser?.id : null,
+      );
       setState(() {
         _lessonGroups = groups;
       });
@@ -331,6 +344,9 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   }
 
   Widget _buildEmptyState() {
+    final isTeacher = _currentUser?.role == 'TEACHER';
+    final hasNoGroups = isTeacher && _lessonGroups.isEmpty;
+    
     return ListView(
       children: [
         const SizedBox(height: 100),
@@ -341,13 +357,29 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               Icon(Icons.fact_check_outlined, size: 80, color: Colors.grey.shade300),
               const SizedBox(height: 24),
               Text(
-                'No attendance records found',
+                hasNoGroups 
+                    ? 'No lesson groups assigned'
+                    : 'No attendance records found',
                 style: TextStyle(
                   fontSize: 18,
                   color: Colors.grey.shade600,
                   fontWeight: FontWeight.w500,
                 ),
               ),
+              if (hasNoGroups) ...[
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Text(
+                    'Please contact your administrator to assign lesson groups to you',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 16),
               ElevatedButton.icon(
                 onPressed: _refresh,

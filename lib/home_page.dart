@@ -43,30 +43,55 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  int _getTabIndex(String tabType) {
+    final role = _currentUser?.role;
+    if (role == null) return 0;
+
+    int index = 1; // Start after Home (index 0)
+
+    switch (tabType) {
+      case 'people':
+        return RolePermissions.canAccessPeople(role) ? index : -1;
+      case 'attendance':
+        if (RolePermissions.canAccessPeople(role)) index++;
+        return RolePermissions.canAccessAttendance(role) ? index : -1;
+      case 'profile':
+        if (RolePermissions.canAccessPeople(role)) index++;
+        if (RolePermissions.canAccessAttendance(role)) index++;
+        return index;
+      case 'settings':
+        if (RolePermissions.canAccessPeople(role)) index++;
+        if (RolePermissions.canAccessAttendance(role)) index++;
+        index++; // Profile always exists
+        return RolePermissions.canAccessSettings(role) ? index : -1;
+      default:
+        return 0;
+    }
+  }
+
   List<Widget> _getScreensForRole(String? role) {
     if (role == null) {
       return [
-        _DashboardScreen(onTabSelected: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        }),
+        _DashboardScreen(
+          onTabSelected: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          currentUser: _currentUser,
+        ),
         const ProfilePage(),
       ];
     }
 
     final screens = <Widget>[
-      _DashboardScreen(onTabSelected: (index) {
-        setState(() {
-          _currentIndex = index;
-        });
-      }),
-      const PeopleScreen(),
-      const AttendanceScreen(),
-      const ProfilePage(),
-      _SettingsScreen(
-        themeService: widget.themeService,
-        settingsService: widget.settingsService,
+      _DashboardScreen(
+        onTabSelected: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        currentUser: _currentUser,
       ),
     ];
 
@@ -85,7 +110,10 @@ class _HomePageState extends State<HomePage> {
 
     // Settings only for OWNER and ADMIN
     if (RolePermissions.canAccessSettings(role)) {
-      screens.add(const _SettingsScreen());
+      screens.add(_SettingsScreen(
+        themeService: widget.themeService,
+        settingsService: widget.settingsService,
+      ));
     }
 
     return screens;
@@ -186,8 +214,38 @@ class _HomePageState extends State<HomePage> {
 
 class _DashboardScreen extends StatelessWidget {
   final Function(int) onTabSelected;
+  final User? currentUser;
 
-  const _DashboardScreen({required this.onTabSelected});
+  const _DashboardScreen({
+    required this.onTabSelected,
+    required this.currentUser,
+  });
+
+  int _getTabIndex(String tabType) {
+    final role = currentUser?.role;
+    if (role == null) return 0;
+
+    int index = 1; // Start after Home (index 0)
+
+    switch (tabType) {
+      case 'people':
+        return RolePermissions.canAccessPeople(role) ? index : -1;
+      case 'attendance':
+        if (RolePermissions.canAccessPeople(role)) index++;
+        return RolePermissions.canAccessAttendance(role) ? index : -1;
+      case 'profile':
+        if (RolePermissions.canAccessPeople(role)) index++;
+        if (RolePermissions.canAccessAttendance(role)) index++;
+        return index;
+      case 'settings':
+        if (RolePermissions.canAccessPeople(role)) index++;
+        if (RolePermissions.canAccessAttendance(role)) index++;
+        index++; // Profile always exists
+        return RolePermissions.canAccessSettings(role) ? index : -1;
+      default:
+        return 0;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -347,7 +405,7 @@ class _DashboardScreen extends StatelessWidget {
                             icon: Icons.school,
                             label: 'Students',
                             color: Colors.blue,
-                            onTap: () => onTabSelected(1),
+                            onTap: () => onTabSelected(_getTabIndex('people')),
                           ),
                         if (RolePermissions.canManageTeachers(user.role))
                           _buildQuickActionCard(
@@ -355,7 +413,7 @@ class _DashboardScreen extends StatelessWidget {
                             icon: Icons.person,
                             label: 'Teachers',
                             color: Colors.green,
-                            onTap: () => onTabSelected(1),
+                            onTap: () => onTabSelected(_getTabIndex('people')),
                           ),
                         if (RolePermissions.canManageParents(user.role))
                           _buildQuickActionCard(
@@ -363,7 +421,7 @@ class _DashboardScreen extends StatelessWidget {
                             icon: Icons.family_restroom,
                             label: 'Parents',
                             color: Colors.orange,
-                            onTap: () => onTabSelected(1),
+                            onTap: () => onTabSelected(_getTabIndex('people')),
                           ),
                         if (RolePermissions.canManageAttendance(user.role))
                           _buildQuickActionCard(
@@ -371,10 +429,7 @@ class _DashboardScreen extends StatelessWidget {
                             icon: Icons.fact_check,
                             label: 'Attendance',
                             color: Colors.teal,
-                            onTap: () => onTabSelected(
-                                RolePermissions.canAccessPeople(user.role)
-                                    ? 2
-                                    : 1),
+                            onTap: () => onTabSelected(_getTabIndex('attendance')),
                           ),
                         if (RolePermissions.canAccessPayments(user.role))
                           _buildQuickActionCard(
@@ -497,12 +552,17 @@ class _DashboardScreen extends StatelessWidget {
   }
 }
 
-class _SettingsScreen extends StatelessWidget {
+class _SettingsScreen extends StatefulWidget {
   final ThemeService? themeService;
   final SettingsService? settingsService;
 
   const _SettingsScreen({this.themeService, this.settingsService});
 
+  @override
+  State<_SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<_SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final authService = AuthService();
@@ -601,9 +661,10 @@ class _SettingsScreen extends StatelessWidget {
                     leading: const Icon(Icons.notifications_outlined),
                     title: const Text('Notifications'),
                     trailing: Switch(
-                      value: settingsService?.notificationsEnabled ?? true,
-                      onChanged: (value) {
-                        settingsService?.toggleNotifications(value);
+                      value: widget.settingsService?.notificationsEnabled ?? true,
+                      onChanged: (value) async {
+                        await widget.settingsService?.toggleNotifications(value);
+                        setState(() {});
                       },
                     ),
                   ),
@@ -612,20 +673,25 @@ class _SettingsScreen extends StatelessWidget {
                     leading: const Icon(Icons.language),
                     title: const Text('Language'),
                     subtitle:
-                        Text(_getLanguageName(settingsService?.languageCode)),
+                        Text(_getLanguageName(widget.settingsService?.languageCode)),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
-                      _showLanguageDialog(context, settingsService);
+                      _showLanguageDialog(context, widget.settingsService);
                     },
                   ),
                   const Divider(height: 1),
                   ListTile(
-                    leading: const Icon(Icons.dark_mode_outlined),
+                    leading: Icon(
+                      widget.themeService?.isDarkMode ?? false
+                          ? Icons.dark_mode
+                          : Icons.dark_mode_outlined,
+                    ),
                     title: const Text('Dark Mode'),
                     trailing: Switch(
-                      value: themeService?.isDarkMode ?? false,
-                      onChanged: (value) {
-                        themeService?.toggleTheme(value);
+                      value: widget.themeService?.isDarkMode ?? false,
+                      onChanged: (value) async {
+                        await widget.themeService?.toggleTheme(value);
+                        setState(() {});
                       },
                     ),
                   ),
