@@ -633,7 +633,7 @@ class _SettingsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Info section
             Card(
               child: Column(
@@ -663,7 +663,7 @@ class _SettingsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Logout button
             Card(
               child: ListTile(
