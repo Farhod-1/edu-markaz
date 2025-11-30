@@ -52,7 +52,7 @@ Non-Functional Requirements
 
 **Part 1 - User & Student Management**
 
-This was the first feature developed because the application needed real data (students) before handling other modules. It took us **2** weeks since we were still learning Flutter and SQLite properly.
+This was the first feature developed because the application needed real data (students) before handling other modules. It took us **2** weeks since we were still learning Flutter and Mongodb properly.
 
 Planning Stage
 
@@ -69,7 +69,7 @@ we created a simple sketch showing:
 
 Design Stage
 
-we designed a student's table in SQLite:
+we designed a student's table in MongoDB:
 
 id, name, phone, group_id
 
@@ -105,7 +105,7 @@ we tested:
 Deployment Stage
 
 Exported APK for testing on my physical Android device.  
-Scrolling and CRUD worked offline thanks to SQLite.
+Scrolling and CRUD worked offline thanks to Mongodb.
 
 **Part 2 - Teacher & Parent Management**
 
@@ -277,7 +277,7 @@ Everything worked without rewriting UI elements
 
 5\. System and Hardware Requirements
 
-Running Edu-Markaz requires straightforward system specs to ensure smooth performance without overwhelming devices. On the software side, the minimum SDK is Android API 21 (Android 5.0 Lollipop), which supports over 95% of active devices per 2025 stats, and iOS 11.0 for Apple users. You'll need Flutter SDK 3.19+ and Dart 3.2+ for building, with key dependencies like sqflite (^2.3.0) for the database and http (^1.1.0) for networking- all listed in pubspec.yaml. RAM minimum is 2GB to handle list scrolling, and storage needs about 100MB free (app + growing DB).
+Running Edu-Markaz requires straightforward system specs to ensure smooth performance without overwhelming devices. On the software side, the minimum SDK is Android API 21 (Android 5.0 Lollipop), which supports over 95% of active devices per 2025 stats, and iOS 11.0 for Apple users. You'll need Flutter SDK 3.19+ and Dart 3.2+ for building, with key dependencies like MongoDB (^20.3.0) for the database and http (^1.1.0) for networking- all listed in pubspec.yaml. RAM minimum is 2GB to handle list scrolling, and storage needs about 100MB free (app + growing DB).
 
 Hardware-wise, an internet connection is essential for initial API pulls and syncs (Wi-Fi or 4G suffices), but offline mode covers basics. No camera or GPS is required in this version, though accelerometer support handles rotations naturally. These specs keep it accessible for most users.
 
@@ -287,7 +287,7 @@ Hardware-wise, an internet connection is essential for initial API pulls and syn
 | --- | --- | --- | --- |
 | **Admin Login** | Valid credentials → Go to Admin Dashboard | Works as expected | Passed |
 | --- | --- | --- | --- |
-| **Add Course (CRUD)** | Course saved in SQLite and appears in the course list | Works as expected | Passed |
+| **Add Course (CRUD)** | Course saved in MongoDB and appears in the course list | Works as expected | Passed |
 | --- | --- | --- | --- |
 | **Edit Course** | Updated course fields saved and UI refreshes | Works as expected | Passed |
 | --- | --- | --- | --- |
