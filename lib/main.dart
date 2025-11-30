@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'home_page.dart';
 import 'login_page.dart';
+import 'pages/onboarding_page.dart';
 import 'services/auth_service.dart';
 
 void main() {
@@ -35,6 +37,7 @@ class _AuthCheckerState extends State<AuthChecker> {
   final _authService = AuthService();
   bool _isLoading = true;
   bool _isAuthenticated = false;
+  bool _onboardingCompleted = false;
 
   @override
   void initState() {
@@ -43,8 +46,12 @@ class _AuthCheckerState extends State<AuthChecker> {
   }
 
   Future<void> _checkAuth() async {
+    final prefs = await SharedPreferences.getInstance();
+    final onboardingDone = prefs.getBool('onboarding_completed') ?? false;
     final isLoggedIn = await _authService.isLoggedIn();
+
     setState(() {
+      _onboardingCompleted = onboardingDone;
       _isAuthenticated = isLoggedIn;
       _isLoading = false;
     });
@@ -60,6 +67,12 @@ class _AuthCheckerState extends State<AuthChecker> {
       );
     }
 
+    // Show onboarding if not completed
+    if (!_onboardingCompleted) {
+      return const OnboardingPage();
+    }
+
+    // Show home or login based on authentication
     return _isAuthenticated ? const HomePage() : const LoginPage();
   }
 }
